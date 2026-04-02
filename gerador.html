@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Sinais - AudioBase Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --bg-color: #0a0e14; --card-bg: #161b22; --accent-green: #44ff44; --text-main: #ffffff; --text-dim: #8b949e; --border: #30363d; }
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
+        .top-bar { width: 100%; padding: 20px; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; }
+        .btn-back { color: var(--text-main); text-decoration: none; font-size: 1.2rem; background: var(--card-bg); padding: 10px 15px; border-radius: 12px; border: 1px solid var(--border); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+        .container { width: 90%; max-width: 500px; }
+        .header-page { text-align: center; margin: 20px 0; }
+        .header-page i { color: var(--accent-green); font-size: 2rem; }
+        .res-display { background: var(--card-bg); border: 2px solid var(--accent-green); border-radius: 30px; padding: 30px 10px; margin-bottom: 25px; text-align: center; }
+        .res-main { font-size: 2.5rem; font-weight: bold; margin: 0; color: var(--accent-green); }
+        .control-group { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-gen { background: #0d1117; border: 1px solid var(--border); color: white; padding: 15px; border-radius: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
+        .btn-gen.active { background: var(--accent-green); color: black; border-color: var(--accent-green); }
+        input[type=range] { width: 100%; accent-color: var(--accent-green); margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="top-bar"><a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i></a><div style="width:45px"></div></div>
+    <div class="container">
+        <div class="header-page"><i class="fas fa-wave-square"></i><h1>Gerador Sinais</h1></div>
+        <div class="res-display"><div class="res-main" id="freq-display">OFF</div></div>
+        <div class="control-group">
+            
+            <span style="color:var(--text-dim);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px">Tipo de Sinal</span>
+            
+            <div class="btn-grid" style="margin-top:15px">
+                <button class="btn-gen" id="btn-sine" onclick="startSignal('sine')">Senoide</button>
+                <button class="btn-gen" id="btn-pink" onclick="startSignal('pink')">Ruído Rosa</button>
+                <button class="btn-gen" id="btn-white" onclick="startSignal('white')">Ruído Branco</button>
+                <button class="btn-gen" style="color:red" onclick="stopAll()">Parar</button>
+            </div>
+
+        </div>
+        <div class="control-group" id="freq-control">
+            <label style="font-size:0.7rem;color:var(--text-dim);text-transform:uppercase">Frequência: <span id="val-hz">1000</span> Hz</label>
+            <input type="range" id="freq-slider" min="20" max="20000" value="1000" oninput="updateFreq()">
+        </div>
+    </div>
+
+    <script>
+        let audioCtx, osc, noiseNode;
+        function init() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        
+        function startSignal(type) {
+            init(); stopAll();
+            document.querySelectorAll('.btn-gen').forEach(b => b.classList.remove('active'));
+            if(type === 'sine') {
+                osc = audioCtx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.value = document.getElementById('freq-slider').value;
+                osc.connect(audioCtx.destination);
+                osc.start();
+                document.getElementById('btn-sine').classList.add('active');
+                document.getElementById('freq-display').innerText = osc.frequency.value + " Hz";
+            } else if(type === 'pink') {
+                playPink();
+                document.getElementById('btn-pink').classList.add('active');
+                document.getElementById('freq-display').innerText = "PINK NOISE";
+            } else if(type === 'white') {
+                playWhite();
+                document.getElementById('btn-white').classList.add('active');
+                document.getElementById('freq-display').innerText = "WHITE NOISE";
+            }
+        }
+
+        function playWhite() {
+            const size = 2 * audioCtx.sampleRate;
+            const buffer = audioCtx.createBuffer(1, size, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < size; i++) data[i] = Math.random() * 2 - 1;
+            noiseNode = audioCtx.createBufferSource();
+            noiseNode.buffer = buffer; noiseNode.loop = true;
+            noiseNode.connect(audioCtx.destination); noiseNode.start();
+        }
+
+        function playPink() {
+            const size = 2 * audioCtx.sampleRate;
+            const buffer = audioCtx.createBuffer(1, size, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            let b0, b1, b2, b3, b4, b5, b6;
+            b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
+            for (let i = 0; i < size; i++) {
+                const white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179; b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.96900 * b2 + white * 0.1538520; b3 = 0.86650 * b3 + white * 0.3104856;
+                b4 = 0.55000 * b4 + white * 0.5329522; b5 = -0.7616 * b5 - white * 0.0168980;
+                data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362; data[i] *= 0.11;
+                b6 = white * 0.115926;
+            }
+            noiseNode = audioCtx.createBufferSource();
+            noiseNode.buffer = buffer; noiseNode.loop = true;
+            noiseNode.connect(audioCtx.destination); noiseNode.start();
+        }
+
+        function updateFreq() {
+            let f = document.getElementById('freq-slider').value;
+            document.getElementById('val-hz').innerText = f;
+            if(osc) { osc.frequency.value = f; document.getElementById('freq-display').innerText = f + " Hz"; }
+        }
+
+        function stopAll() {
+            if(osc) { osc.stop(); osc = null; }
+            if(noiseNode) { noiseNode.stop(); noiseNode = null; }
+            document.getElementById('freq-display').innerText = "OFF";
+            document.querySelectorAll('.btn-gen').forEach(b => b.classList.remove('active'));
+        }
+    </script>
+</body>
+</html>

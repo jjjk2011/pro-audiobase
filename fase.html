@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner de Fase - AudioBase Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0a0e14;
+            --card-bg: #161b22;
+            --accent-purple: #a370f7;
+            --accent-orange: #ff9800;
+            --text-main: #ffffff;
+            --text-dim: #8b949e;
+            --border: #30363d;
+            --success: #44ff44;
+            --danger: #ff4d4d;
+        }
+
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding-bottom: 50px; 
+        }
+
+        /* BARRA SUPERIOR PADRONIZADA */
+        .top-bar { 
+            width: 100%; 
+            padding: 20px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            box-sizing: border-box; 
+        }
+
+        .btn-back { 
+            color: var(--text-main); 
+            text-decoration: none; 
+            font-size: 1.2rem; 
+            background: var(--card-bg); 
+            padding: 10px 15px; 
+            border-radius: 12px; 
+            border: 1px solid var(--border); 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            box-sizing: border-box;
+        }
+
+        .container { width: 90%; max-width: 500px; }
+
+        .header-page { text-align: center; margin: 20px 0; }
+        .header-page i { color: var(--accent-purple); font-size: 2rem; margin-bottom: 10px; }
+        .header-page h1 { margin: 0; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* OSCILOSCÓPIO */
+        .scope-box { 
+            background: #000; 
+            border: 1px solid var(--border); 
+            border-radius: 20px; 
+            height: 120px; 
+            margin-bottom: 20px; 
+            overflow: hidden; 
+            position: relative; 
+        }
+        canvas { width: 100%; height: 100%; }
+
+        /* SEÇÃO DE SINAL (LARANJA) */
+        .section-label { 
+            color: var(--text-dim); 
+            font-size: 0.7rem; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            margin-bottom: 15px; 
+            display: block; 
+            text-align: left;
+        }
+
+        .pa-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 10px; 
+            margin-bottom: 25px; 
+        }
+
+        .pa-card { 
+            background: var(--card-bg); 
+            border: 1px solid var(--border); 
+            border-radius: 15px; 
+            padding: 20px 5px; 
+            cursor: pointer; 
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .pa-card i { font-size: 1.5rem; color: var(--accent-orange); margin-bottom: 8px; display: block; }
+        .pa-card span { font-size: 0.7rem; font-weight: bold; color: var(--text-dim); text-transform: uppercase; }
+
+        .pa-card.playing { 
+            border-color: var(--accent-orange); 
+            background: rgba(255, 152, 0, 0.1); 
+            box-shadow: 0 0 15px rgba(255, 152, 0, 0.2);
+        }
+        .pa-card.playing i { color: #fff; }
+        .pa-card.playing span { color: #fff; }
+
+        /* RESULTADO (ESTILO DISPLAY CARDS) */
+        .res-display {
+            background: var(--card-bg); 
+            border: 2px solid var(--border); 
+            border-radius: 30px; 
+            padding: 40px 10px; 
+            margin-bottom: 25px; 
+            text-align: center;
+            transition: 0.2s;
+        }
+        .res-display.pos { border-color: var(--success); box-shadow: 0 0 20px rgba(68, 255, 68, 0.1); }
+        .res-display.neg { border-color: var(--danger); box-shadow: 0 0 20px rgba(255, 77, 77, 0.1); }
+        .res-main { font-size: 2.2rem; font-weight: bold; margin: 0; }
+
+        /* BOTÃO MICROFONE (ROXO) */
+        .btn-action {
+            width: 100%; 
+            padding: 20px; 
+            border-radius: 20px; 
+            border: 2px solid var(--accent-purple);
+            background: transparent; 
+            color: var(--accent-purple); 
+            font-size: 1rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-action.active { 
+            background: var(--accent-purple); 
+            color: #000; 
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i></a>
+    </div>
+
+    <div class="container">
+        
+        <div class="header-page">
+            <i class="fas fa-wave-square"></i>
+            <h1>Scanner de Fase</h1>
+        </div>
+
+        <div class="scope-box">
+            <canvas id="scope"></canvas>
+        </div>
+
+        <span class="section-label">Gerador de Pulso</span>
+        <div class="pa-grid">
+            <div id="btn-sub" class="pa-card" onclick="togglePulse('sub')">
+                <i class="fas fa-bullseye"></i>
+                <span>Sub</span>
+            </div>
+            <div id="btn-medio" class="pa-card" onclick="togglePulse('medio')">
+                <i class="fas fa-volume-down"></i>
+                <span>Médio</span>
+            </div>
+            <div id="btn-agudo" class="pa-card" onclick="togglePulse('agudo')">
+                <i class="fas fa-bullhorn"></i>
+                <span>Agudo</span>
+            </div>
+        </div>
+
+        <div id="res-card" class="res-display">
+            <div id="res-main" class="res-main">---</div>
+        </div>
+
+        <button id="btn-mic" class="btn-action" onclick="toggleMic()">
+            <i class="fas fa-microphone"></i> Ligar Analisador
+        </button>
+
+    </div>
+
+    <script>
+        let audioCtx, analyser, source, micActive = false;
+        let activePulse = null, pulseTimer;
+        const canvas = document.getElementById('scope'), ctx = canvas.getContext('2d');
+
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+
+        async function toggleMic() {
+            initAudio();
+            if (micActive) { location.reload(); return; }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } 
+                });
+                source = audioCtx.createMediaStreamSource(stream);
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 2048;
+                source.connect(analyser);
+                micActive = true;
+                document.getElementById('btn-mic').classList.add('active');
+                document.getElementById('btn-mic').innerHTML = '<i class="fas fa-stop"></i> Desligar Analisador';
+                draw();
+                monitor();
+            } catch (err) { alert("Permita o uso do microfone."); }
+        }
+
+        function togglePulse(via) {
+            initAudio();
+            if (activePulse === via) { stopPulse(); } 
+            else { 
+                stopPulse(); 
+                activePulse = via; 
+                document.getElementById(`btn-${via}`).classList.add('playing'); 
+                loopPulse(); 
+            }
+        }
+
+        function stopPulse() {
+            clearTimeout(pulseTimer);
+            document.querySelectorAll('.pa-card').forEach(c => c.classList.remove('playing'));
+            activePulse = null;
+        }
+
+        function loopPulse() {
+            if (!activePulse) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            if (activePulse === 'sub') { osc.type = 'sawtooth'; osc.frequency.value = 40; }
+            else if (activePulse === 'medio') { osc.type = 'triangle'; osc.frequency.value = 500; }
+            else { osc.type = 'square'; osc.frequency.value = 5000; }
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(1.0, audioCtx.currentTime + 0.001);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.01);
+
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.02);
+            pulseTimer = setTimeout(loopPulse, 1000);
+        }
+
+        function monitor() {
+            if (!micActive) return;
+            const data = new Float32Array(analyser.fftSize);
+            analyser.getFloatTimeDomainData(data);
+            let firstPeakValue = 0, threshold = 0.15;
+
+            for (let i = 0; i < data.length; i++) {
+                if (Math.abs(data[i]) > threshold) { firstPeakValue = data[i]; break; }
+            }
+
+            if (firstPeakValue !== 0) {
+                const card = document.getElementById('res-card');
+                const main = document.getElementById('res-main');
+                if (firstPeakValue > 0) {
+                    card.className = "res-display pos";
+                    main.innerText = "NORMAL (+)";
+                    main.style.color = "var(--success)";
+                } else {
+                    card.className = "res-display neg";
+                    main.innerText = "INVERTIDA (-)";
+                    main.style.color = "var(--danger)";
+                }
+            }
+            requestAnimationFrame(monitor);
+        }
+
+        function draw() {
+            if (!micActive) return;
+            const data = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteTimeDomainData(data);
+            ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.lineWidth = 2; ctx.strokeStyle = '#a370f7'; ctx.beginPath();
+            let x = 0; const slice = canvas.width / data.length;
+            for (let i = 0; i < data.length; i++) {
+                const v = data[i] / 128.0; const y = v * canvas.height / 2;
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                x += slice;
+            }
+            ctx.stroke(); requestAnimationFrame(draw);
+        }
+    </script>
+</body>
+</html>
