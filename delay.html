@@ -76,7 +76,6 @@
     </div>
 
     <script>
-        let audioCtx;
         function calcularManual() {
             const dist = parseFloat(document.getElementById('dist').value) || 0;
             const temp = parseFloat(document.getElementById('temp').value);
@@ -90,12 +89,7 @@
             input.value = (parseFloat(input.value) + val).toFixed(2);
             calcularManual();
         }
-        function toggleAutoMeasure() {
-            alert("Iniciando medição... Aproxime do falante.");
-            // Lógica de áudio aqui (como construído anteriormente)
-        }
         calcularManual();
-        
     </script>
 </body>
 </html>
