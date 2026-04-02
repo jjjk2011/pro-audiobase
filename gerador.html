@@ -20,6 +20,7 @@
         .btn-gen { background: #0d1117; border: 1px solid var(--border); color: white; padding: 15px; border-radius: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
         .btn-gen.active { background: var(--accent-green); color: black; border-color: var(--accent-green); }
         input[type=range] { width: 100%; accent-color: var(--accent-green); margin-top: 15px; }
+        .disabled-control { opacity: 0.5; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -52,6 +53,9 @@
         function startSignal(type) {
             init(); stopAll();
             document.querySelectorAll('.btn-gen').forEach(b => b.classList.remove('active'));
+            
+            const freqControl = document.getElementById('freq-control');
+            
             if(type === 'sine') {
                 osc = audioCtx.createOscillator();
                 osc.type = 'sine';
@@ -60,14 +64,17 @@
                 osc.start();
                 document.getElementById('btn-sine').classList.add('active');
                 document.getElementById('freq-display').innerText = osc.frequency.value + " Hz";
+                freqControl.classList.remove('disabled-control');
             } else if(type === 'pink') {
                 playPink();
                 document.getElementById('btn-pink').classList.add('active');
                 document.getElementById('freq-display').innerText = "PINK NOISE";
+                freqControl.classList.add('disabled-control');
             } else if(type === 'white') {
                 playWhite();
                 document.getElementById('btn-white').classList.add('active');
                 document.getElementById('freq-display').innerText = "WHITE NOISE";
+                freqControl.classList.add('disabled-control');
             }
         }
 
@@ -111,6 +118,8 @@
             if(noiseNode) { noiseNode.stop(); noiseNode = null; }
             document.getElementById('freq-display').innerText = "OFF";
             document.querySelectorAll('.btn-gen').forEach(b => b.classList.remove('active'));
+            // Reabilitar controle de frequência
+            document.getElementById('freq-control').classList.remove('disabled-control');
         }
     </script>
 </body>
