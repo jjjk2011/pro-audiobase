@@ -66,7 +66,7 @@
             background: #000; 
             border: 1px solid var(--border); 
             border-radius: 20px; 
-            height: 120px; 
+            height: 150px; 
             margin-bottom: 20px; 
             overflow: hidden; 
             position: relative; 
@@ -167,7 +167,7 @@
         </div>
 
         <div class="scope-box">
-            <canvas id="scope"></canvas>
+            <canvas id="scope" width="600" height="150"></canvas>
         </div>
 
         <span class="section-label">Gerador de Pulso</span>
@@ -219,7 +219,10 @@
                 document.getElementById('btn-mic').innerHTML = '<i class="fas fa-stop"></i> Desligar Analisador';
                 draw();
                 monitor();
-            } catch (err) { alert("Permita o uso do microfone."); }
+            } catch (err) { 
+                alert("Permissão de microfone negada ou não disponível. Para usar o analisador de fase, é necessário permitir o acesso ao microfone.");
+                console.error(err);
+            }
         }
 
         function togglePulse(via) {
