@@ -165,7 +165,7 @@
             // 2. Lógica Bridge
             let ampPotDisp = (am === 'br') ? aw * 2 : aw;
             let ampMinReal = (am === 'br') ? amin * 2 : amin;
-            let headroom = ampPotDisp / pt;
+            let headroom = (pt > 0) ? ampPotDisp / pt : 0;
             
             const badge = document.getElementById('bridge-badge');
             badge.style.display = (am === 'br') ? 'inline-block' : 'none';
