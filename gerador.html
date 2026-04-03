@@ -21,6 +21,38 @@
         .btn-gen.active { background: var(--accent-green); color: black; border-color: var(--accent-green); }
         input[type=range] { width: 100%; accent-color: var(--accent-green); margin-top: 15px; }
         .disabled-control { opacity: 0.5; pointer-events: none; }
+        
+        /* Grade para frequências pré-definidas */
+        .freq-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn-freq {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            color: var(--accent-green);
+            padding: 12px 5px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+        .btn-freq:hover {
+            background: var(--accent-green);
+            color: black;
+            border-color: var(--accent-green);
+        }
+        .section-subtitle {
+            color: var(--text-dim);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -28,18 +60,34 @@
     <div class="container">
         <div class="header-page"><i class="fas fa-wave-square"></i><h1>Gerador Sinais</h1></div>
         <div class="res-display"><div class="res-main" id="freq-display">OFF</div></div>
+        
+        <!-- Controle de Tipo de Sinal -->
         <div class="control-group">
-            
             <span style="color:var(--text-dim);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px">Tipo de Sinal</span>
-            
             <div class="btn-grid" style="margin-top:15px">
                 <button class="btn-gen" id="btn-sine" onclick="startSignal('sine')">Senoide</button>
                 <button class="btn-gen" id="btn-pink" onclick="startSignal('pink')">Ruído Rosa</button>
                 <button class="btn-gen" id="btn-white" onclick="startSignal('white')">Ruído Branco</button>
                 <button class="btn-gen" style="color:red" onclick="stopAll()">Parar</button>
             </div>
-
         </div>
+        
+        <!-- Frequências Pré-definidas (NOVO) -->
+        <div class="control-group">
+            <span class="section-subtitle"><i class="fas fa-chart-line"></i> Frequências Pré-definidas</span>
+            <div class="freq-grid">
+                <button class="btn-freq" onclick="setPresetFreq(40)">40 Hz</button>
+                <button class="btn-freq" onclick="setPresetFreq(100)">100 Hz</button>
+                <button class="btn-freq" onclick="setPresetFreq(500)">500 Hz</button>
+                <button class="btn-freq" onclick="setPresetFreq(1000)">1 kHz</button>
+                <button class="btn-freq" onclick="setPresetFreq(2000)">2 kHz</button>
+                <button class="btn-freq" onclick="setPresetFreq(5000)">5 kHz</button>
+                <button class="btn-freq" onclick="setPresetFreq(10000)">10 kHz</button>
+                <button class="btn-freq" onclick="setPresetFreq(15000)">15 kHz</button>
+            </div>
+        </div>
+        
+        <!-- Controle Deslizante de Frequência -->
         <div class="control-group" id="freq-control">
             <label style="font-size:0.7rem;color:var(--text-dim);text-transform:uppercase">Frequência: <span id="val-hz">1000</span> Hz</label>
             <input type="range" id="freq-slider" min="20" max="20000" value="1000" oninput="updateFreq()">
@@ -48,29 +96,61 @@
 
     <script>
         let audioCtx, osc, noiseNode;
-        function init() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        let currentSignalType = null; // 'sine', 'pink', 'white'
+        
+        function init() { 
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+        }
+        
+        // Função para usar frequência pré-definida
+        function setPresetFreq(freq) {
+            // Atualiza o slider e o display de Hz
+            document.getElementById('freq-slider').value = freq;
+            document.getElementById('val-hz').innerText = freq;
+            
+            // Se já estiver no modo senoide, apenas muda a frequência
+            if (currentSignalType === 'sine' && osc) {
+                osc.frequency.value = freq;
+                document.getElementById('freq-display').innerText = freq + " Hz";
+            } 
+            else {
+                // Se não estiver em senoide, liga senoide automaticamente com a frequência escolhida
+                startSignal('sine');
+                // O startSignal já cria um novo oscilador, mas precisamos garantir a frequência correta
+                if (osc) osc.frequency.value = freq;
+                document.getElementById('freq-display').innerText = freq + " Hz";
+                // Força o slider para o valor correto (já está)
+            }
+            // Remove disabled do controle de frequência (caso estivesse desabilitado por ruído)
+            document.getElementById('freq-control').classList.remove('disabled-control');
+        }
         
         function startSignal(type) {
-            init(); stopAll();
+            init();
+            stopAll(); // para qualquer sinal ativo
             document.querySelectorAll('.btn-gen').forEach(b => b.classList.remove('active'));
             
             const freqControl = document.getElementById('freq-control');
+            currentSignalType = type;
             
             if(type === 'sine') {
+                const freqValue = parseFloat(document.getElementById('freq-slider').value);
                 osc = audioCtx.createOscillator();
                 osc.type = 'sine';
-                osc.frequency.value = document.getElementById('freq-slider').value;
+                osc.frequency.value = freqValue;
                 osc.connect(audioCtx.destination);
                 osc.start();
                 document.getElementById('btn-sine').classList.add('active');
-                document.getElementById('freq-display').innerText = osc.frequency.value + " Hz";
+                document.getElementById('freq-display').innerText = freqValue + " Hz";
                 freqControl.classList.remove('disabled-control');
-            } else if(type === 'pink') {
+            } 
+            else if(type === 'pink') {
                 playPink();
                 document.getElementById('btn-pink').classList.add('active');
                 document.getElementById('freq-display').innerText = "PINK NOISE";
                 freqControl.classList.add('disabled-control');
-            } else if(type === 'white') {
+            } 
+            else if(type === 'white') {
                 playWhite();
                 document.getElementById('btn-white').classList.add('active');
                 document.getElementById('freq-display').innerText = "WHITE NOISE";
@@ -108,9 +188,12 @@
         }
 
         function updateFreq() {
-            let f = document.getElementById('freq-slider').value;
+            let f = parseFloat(document.getElementById('freq-slider').value);
             document.getElementById('val-hz').innerText = f;
-            if(osc) { osc.frequency.value = f; document.getElementById('freq-display').innerText = f + " Hz"; }
+            if(osc && currentSignalType === 'sine') { 
+                osc.frequency.value = f; 
+                document.getElementById('freq-display').innerText = f + " Hz";
+            }
         }
 
         function stopAll() {
@@ -118,8 +201,8 @@
             if(noiseNode) { noiseNode.stop(); noiseNode = null; }
             document.getElementById('freq-display').innerText = "OFF";
             document.querySelectorAll('.btn-gen').forEach(b => b.classList.remove('active'));
-            // Reabilitar controle de frequência
             document.getElementById('freq-control').classList.remove('disabled-control');
+            currentSignalType = null;
         }
     </script>
 </body>
