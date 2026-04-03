@@ -2,207 +2,193 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Sinais - AudioBase Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Gerador | AudioBase Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg-color: #0a0e14; --card-bg: #161b22; --accent-green: #44ff44; --text-main: #ffffff; --text-dim: #8b949e; --border: #30363d; }
-        body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
-        .top-bar { width: 100%; padding: 20px; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; }
-        .btn-back { color: var(--text-main); text-decoration: none; font-size: 1.2rem; background: var(--card-bg); padding: 10px 15px; border-radius: 12px; border: 1px solid var(--border); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
-        .container { width: 90%; max-width: 500px; }
-        .header-page { text-align: center; margin: 20px 0; }
-        .header-page i { color: var(--accent-green); font-size: 2rem; }
-        .res-display { background: var(--card-bg); border: 2px solid var(--accent-green); border-radius: 30px; padding: 30px 10px; margin-bottom: 25px; text-align: center; }
-        .res-main { font-size: 2.5rem; font-weight: bold; margin: 0; color: var(--accent-green); }
-        .control-group { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-gen { background: #0d1117; border: 1px solid var(--border); color: white; padding: 15px; border-radius: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
-        .btn-gen.active { background: var(--accent-green); color: black; border-color: var(--accent-green); }
-        input[type=range] { width: 100%; accent-color: var(--accent-green); margin-top: 15px; }
-        .disabled-control { opacity: 0.5; pointer-events: none; }
+        :root {
+            --bg: #0a0e14; --card: #161b22; --inner-bg: #0d1117; --border: #30363d;
+            --text: #ffffff; --dim: #8b949e; --accent: #44ff44;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 50px; }
         
-        /* Grade para frequências pré-definidas */
-        .freq-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .btn-freq {
-            background: #0d1117;
-            border: 1px solid var(--border);
-            color: var(--accent-green);
-            padding: 12px 5px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: 0.2s;
-        }
-        .btn-freq:hover {
-            background: var(--accent-green);
-            color: black;
-            border-color: var(--accent-green);
-        }
-        .section-subtitle {
-            color: var(--text-dim);
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            display: block;
-        }
+        .top-bar { width: 100%; max-width: 500px; padding: 20px; display: flex; align-items: center; justify-content: space-between; }
+        .btn-back { color: var(--text); text-decoration: none; background: var(--card); border: 1px solid var(--border); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-back:active { transform: scale(0.95); }
+
+        .container { width: 90%; max-width: 450px; }
+        .header { text-align: center; margin-bottom: 25px; }
+        .header i { font-size: 2.2rem; color: var(--accent); margin-bottom: 10px; display: inline-block; background: var(--inner-bg); padding: 15px; border-radius: 20px; box-shadow: 0 0 0 1px var(--border); }
+
+        .noise-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .btn-noise { background: var(--card); border: 1px solid var(--border); color: white; padding: 25px 15px; border-radius: 1.5rem; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; font-size: 0.9rem; font-weight: bold; gap: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-noise i { font-size: 1.8rem; color: var(--dim); transition: 0.2s; }
+        
+        /* Estado Ativo dos Botões */
+        .btn-noise.active { border-color: var(--accent); background: var(--inner-bg); box-shadow: 0 0 15px rgba(68,255,68,0.1); }
+        .btn-noise.active i, .btn-noise.active span { color: var(--accent); }
+        .btn-noise:active { transform: scale(0.95); }
+
+        .control-group { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; text-align: center; }
+        .freq-display { font-size: 2.5rem; font-weight: bold; color: var(--accent); display: block; margin: 10px 0; }
+        
+        input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; margin-top: 10px; }
+        
+        .btn-sine { width: 100%; margin-top: 20px; flex-direction: row; justify-content: center; padding: 15px; border-radius: 1rem; }
     </style>
 </head>
 <body>
-    <div class="top-bar"><a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i></a><div style="width:45px"></div></div>
+    <div class="top-bar">
+        <a href="index.html" class="btn-back"><i class="fas fa-chevron-left"></i></a>
+        <div style="width:45px"></div>
+    </div>
+
     <div class="container">
-        <div class="header-page"><i class="fas fa-wave-square"></i><h1>Gerador Sinais</h1></div>
-        <div class="res-display"><div class="res-main" id="freq-display">OFF</div></div>
-        
-        <!-- Controle de Tipo de Sinal -->
-        <div class="control-group">
-            <span style="color:var(--text-dim);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px">Tipo de Sinal</span>
-            <div class="btn-grid" style="margin-top:15px">
-                <button class="btn-gen" id="btn-sine" onclick="startSignal('sine')">Senoide</button>
-                <button class="btn-gen" id="btn-pink" onclick="startSignal('pink')">Ruído Rosa</button>
-                <button class="btn-gen" id="btn-white" onclick="startSignal('white')">Ruído Branco</button>
-                <button class="btn-gen" style="color:red" onclick="stopAll()">Parar</button>
-            </div>
+        <div class="header">
+            <i class="fas fa-wave-square"></i>
         </div>
-        
-        <!-- Frequências Pré-definidas (NOVO) -->
-        <div class="control-group">
-            <span class="section-subtitle"><i class="fas fa-chart-line"></i> Frequências Pré-definidas</span>
-            <div class="freq-grid">
-                <button class="btn-freq" onclick="setPresetFreq(40)">40 Hz</button>
-                <button class="btn-freq" onclick="setPresetFreq(100)">100 Hz</button>
-                <button class="btn-freq" onclick="setPresetFreq(500)">500 Hz</button>
-                <button class="btn-freq" onclick="setPresetFreq(1000)">1 kHz</button>
-                <button class="btn-freq" onclick="setPresetFreq(2000)">2 kHz</button>
-                <button class="btn-freq" onclick="setPresetFreq(5000)">5 kHz</button>
-                <button class="btn-freq" onclick="setPresetFreq(10000)">10 kHz</button>
-                <button class="btn-freq" onclick="setPresetFreq(15000)">15 kHz</button>
-            </div>
+
+        <div class="noise-grid">
+            <button class="btn-noise" id="btn-pink" onclick="toggleNoise('pink')">
+                <i class="fas fa-water"></i>
+                <span>Ruído Rosa</span>
+            </button>
+            <button class="btn-noise" id="btn-white" onclick="toggleNoise('white')">
+                <i class="fas fa-snowflake"></i>
+                <span>Ruído Branco</span>
+            </button>
         </div>
-        
-        <!-- Controle Deslizante de Frequência -->
-        <div class="control-group" id="freq-control">
-            <label style="font-size:0.7rem;color:var(--text-dim);text-transform:uppercase">Frequência: <span id="val-hz">1000</span> Hz</label>
-            <input type="range" id="freq-slider" min="20" max="20000" value="1000" oninput="updateFreq()">
+
+        <div class="control-group">
+            <span style="font-size: 0.65rem; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; font-weight:bold;">Frequência Fixa (Senoide)</span>
+            <span class="freq-display" id="f-val">440Hz</span>
+            <input type="range" id="f-slider" min="20" max="1000" value="440" oninput="updateFreq()">
+            
+            <button class="btn-noise btn-sine" id="btn-sine" onclick="toggleSine()">
+                <i class="fas fa-podcast"></i>
+                <span id="sine-text">Ligar Senoide</span>
+            </button>
         </div>
     </div>
 
     <script>
-        let audioCtx, osc, noiseNode;
-        let currentSignalType = null; // 'sine', 'pink', 'white'
-        
-        function init() { 
-            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
-        }
-        
-        // Função para usar frequência pré-definida
-        function setPresetFreq(freq) {
-            // Atualiza o slider e o display de Hz
-            document.getElementById('freq-slider').value = freq;
-            document.getElementById('val-hz').innerText = freq;
-            
-            // Se já estiver no modo senoide, apenas muda a frequência
-            if (currentSignalType === 'sine' && osc) {
-                osc.frequency.value = freq;
-                document.getElementById('freq-display').innerText = freq + " Hz";
-            } 
-            else {
-                // Se não estiver em senoide, liga senoide automaticamente com a frequência escolhida
-                startSignal('sine');
-                // O startSignal já cria um novo oscilador, mas precisamos garantir a frequência correta
-                if (osc) osc.frequency.value = freq;
-                document.getElementById('freq-display').innerText = freq + " Hz";
-                // Força o slider para o valor correto (já está)
+        let audioCtx;
+        let noiseNode = null;
+        let oscNode = null;
+        let activeSignal = null; // 'pink', 'white', ou 'sine'
+
+        // Inicializa o contexto de áudio (necessário interação do usuário primeiro)
+        async function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
-            // Remove disabled do controle de frequência (caso estivesse desabilitado por ruído)
-            document.getElementById('freq-control').classList.remove('disabled-control');
-        }
-        
-        function startSignal(type) {
-            init();
-            stopAll(); // para qualquer sinal ativo
-            document.querySelectorAll('.btn-gen').forEach(b => b.classList.remove('active'));
-            
-            const freqControl = document.getElementById('freq-control');
-            currentSignalType = type;
-            
-            if(type === 'sine') {
-                const freqValue = parseFloat(document.getElementById('freq-slider').value);
-                osc = audioCtx.createOscillator();
-                osc.type = 'sine';
-                osc.frequency.value = freqValue;
-                osc.connect(audioCtx.destination);
-                osc.start();
-                document.getElementById('btn-sine').classList.add('active');
-                document.getElementById('freq-display').innerText = freqValue + " Hz";
-                freqControl.classList.remove('disabled-control');
-            } 
-            else if(type === 'pink') {
-                playPink();
-                document.getElementById('btn-pink').classList.add('active');
-                document.getElementById('freq-display').innerText = "PINK NOISE";
-                freqControl.classList.add('disabled-control');
-            } 
-            else if(type === 'white') {
-                playWhite();
-                document.getElementById('btn-white').classList.add('active');
-                document.getElementById('freq-display').innerText = "WHITE NOISE";
-                freqControl.classList.add('disabled-control');
+            if (audioCtx.state === 'suspended') {
+                await audioCtx.resume();
             }
         }
 
-        function playWhite() {
-            const size = 2 * audioCtx.sampleRate;
-            const buffer = audioCtx.createBuffer(1, size, audioCtx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < size; i++) data[i] = Math.random() * 2 - 1;
-            noiseNode = audioCtx.createBufferSource();
-            noiseNode.buffer = buffer; noiseNode.loop = true;
-            noiseNode.connect(audioCtx.destination); noiseNode.start();
+        // Para qualquer som que esteja tocando
+        function stopAllSignals() {
+            if (noiseNode) { noiseNode.stop(); noiseNode.disconnect(); noiseNode = null; }
+            if (oscNode) { oscNode.stop(); oscNode.disconnect(); oscNode = null; }
+            
+            // Reseta visual dos botões
+            document.getElementById('btn-pink').classList.remove('active');
+            document.getElementById('btn-white').classList.remove('active');
+            document.getElementById('btn-sine').classList.remove('active');
+            document.getElementById('sine-text').innerText = "Ligar Senoide";
+            activeSignal = null;
         }
 
-        function playPink() {
-            const size = 2 * audioCtx.sampleRate;
-            const buffer = audioCtx.createBuffer(1, size, audioCtx.sampleRate);
-            const data = buffer.getChannelData(0);
-            let b0, b1, b2, b3, b4, b5, b6;
-            b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
-            for (let i = 0; i < size; i++) {
-                const white = Math.random() * 2 - 1;
-                b0 = 0.99886 * b0 + white * 0.0555179; b1 = 0.99332 * b1 + white * 0.0750759;
-                b2 = 0.96900 * b2 + white * 0.1538520; b3 = 0.86650 * b3 + white * 0.3104856;
-                b4 = 0.55000 * b4 + white * 0.5329522; b5 = -0.7616 * b5 - white * 0.0168980;
-                data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362; data[i] *= 0.11;
+        // Gerador de Ruído Branco
+        function createWhiteNoiseBuffer() {
+            const bufferSize = audioCtx.sampleRate * 2; // 2 segundos de buffer
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+            return buffer;
+        }
+
+        // Gerador de Ruído Rosa (Algoritmo de filtro Paul Kellet)
+        function createPinkNoiseBuffer() {
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = buffer.getChannelData(0);
+            let b0=0, b1=0, b2=0, b3=0, b4=0, b5=0, b6=0;
+            
+            for (let i = 0; i < bufferSize; i++) {
+                let white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179;
+                b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.96900 * b2 + white * 0.1538520;
+                b3 = 0.86650 * b3 + white * 0.3104856;
+                b4 = 0.55000 * b4 + white * 0.5329522;
+                b5 = -0.7616 * b5 - white * 0.0168980;
+                output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                output[i] *= 0.11; // Controle de ganho para não clipar
                 b6 = white * 0.115926;
             }
-            noiseNode = audioCtx.createBufferSource();
-            noiseNode.buffer = buffer; noiseNode.loop = true;
-            noiseNode.connect(audioCtx.destination); noiseNode.start();
+            return buffer;
         }
 
-        function updateFreq() {
-            let f = parseFloat(document.getElementById('freq-slider').value);
-            document.getElementById('val-hz').innerText = f;
-            if(osc && currentSignalType === 'sine') { 
-                osc.frequency.value = f; 
-                document.getElementById('freq-display').innerText = f + " Hz";
+        // Toca ruído (Rosa ou Branco)
+        async function toggleNoise(type) {
+            await initAudio();
+
+            // Se clicar no que já está tocando, apenas desliga
+            if (activeSignal === type) {
+                stopAllSignals();
+                return;
             }
+
+            stopAllSignals();
+            activeSignal = type;
+
+            const buffer = type === 'pink' ? createPinkNoiseBuffer() : createWhiteNoiseBuffer();
+            
+            noiseNode = audioCtx.createBufferSource();
+            noiseNode.buffer = buffer;
+            noiseNode.loop = true;
+            noiseNode.connect(audioCtx.destination);
+            noiseNode.start();
+
+            // Atualiza UI
+            document.getElementById(`btn-${type}`).classList.add('active');
         }
 
-        function stopAll() {
-            if(osc) { osc.stop(); osc = null; }
-            if(noiseNode) { noiseNode.stop(); noiseNode = null; }
-            document.getElementById('freq-display').innerText = "OFF";
-            document.querySelectorAll('.btn-gen').forEach(b => b.classList.remove('active'));
-            document.getElementById('freq-control').classList.remove('disabled-control');
-            currentSignalType = null;
+        // Toca Senoide
+        async function toggleSine() {
+            await initAudio();
+
+            if (activeSignal === 'sine') {
+                stopAllSignals();
+                return;
+            }
+
+            stopAllSignals();
+            activeSignal = 'sine';
+
+            oscNode = audioCtx.createOscillator();
+            oscNode.type = 'sine';
+            oscNode.frequency.value = document.getElementById('f-slider').value;
+            oscNode.connect(audioCtx.destination);
+            oscNode.start();
+
+            // Atualiza UI
+            document.getElementById('btn-sine').classList.add('active');
+            document.getElementById('sine-text').innerText = "Desligar Senoide";
+        }
+
+        // Atualiza a frequência no display e no oscilador em tempo real
+        function updateFreq() {
+            const f = document.getElementById('f-slider').value;
+            document.getElementById('f-val').innerText = f + "Hz";
+            if (oscNode && activeSignal === 'sine') {
+                oscNode.frequency.setValueAtTime(f, audioCtx.currentTime);
+            }
         }
     </script>
 </body>
