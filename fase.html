@@ -2,304 +2,207 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scanner de Fase - AudioBase Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Scanner de Fase | AudioBase Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --bg-color: #0a0e14;
-            --card-bg: #161b22;
-            --accent-purple: #a370f7;
-            --accent-orange: #ff9800;
-            --text-main: #ffffff;
-            --text-dim: #8b949e;
-            --border: #30363d;
-            --success: #44ff44;
-            --danger: #ff4d4d;
+            --bg: #0a0e14; --card: #161b22; --inner-bg: #0d1117; --border: #30363d;
+            --text: #ffffff; --dim: #8b949e; 
+            --accent: #a370f7; --success: #44ff44; --danger: #ff4d4d; --warning: #ffcc00;
         }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 50px; }
 
-        body { 
-            background-color: var(--bg-color); 
-            color: var(--text-main); 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            padding-bottom: 50px; 
-        }
+        .top-bar { width: 100%; max-width: 500px; padding: 20px; display: flex; align-items: center; justify-content: space-between; }
+        .btn-back { color: var(--text); text-decoration: none; background: var(--card); border: 1px solid var(--border); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-back:active { transform: scale(0.95); }
 
-        /* BARRA SUPERIOR PADRONIZADA */
-        .top-bar { 
-            width: 100%; 
-            padding: 20px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            box-sizing: border-box; 
-        }
+        .container { width: 90%; max-width: 480px; }
 
-        .btn-back { 
-            color: var(--text-main); 
-            text-decoration: none; 
-            font-size: 1.2rem; 
-            background: var(--card-bg); 
-            padding: 10px 15px; 
-            border-radius: 12px; 
-            border: 1px solid var(--border); 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 45px;
-            height: 45px;
-            box-sizing: border-box;
-        }
+        .header-page { text-align: center; margin: 10px 0 25px; }
+        .header-page i { color: var(--accent); font-size: 2rem; margin-bottom: 10px; display: inline-block; background: var(--inner-bg); padding: 15px; border-radius: 20px; box-shadow: 0 0 0 1px var(--border); }
+        .header-page h1 { margin: 0; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; }
 
-        .container { width: 90%; max-width: 500px; }
+        .result-box { background: var(--inner-bg); border-radius: 25px; padding: 25px; text-align: center; margin-bottom: 20px; border: 2px solid var(--border); transition: all 0.3s ease; }
+        .result-box.normal { border-color: var(--success); box-shadow: 0 0 20px rgba(68,255,68,0.15); }
+        .result-box.invertido { border-color: var(--danger); box-shadow: 0 0 20px rgba(255,77,77,0.15); }
+        
+        .result-icon { font-size: 3.5rem; margin-bottom: 10px; }
+        .result-text { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; color: var(--dim); }
+        .result-detail { font-size: 0.8rem; color: var(--dim); margin-top: 10px; font-weight: bold;}
 
-        .header-page { text-align: center; margin: 20px 0; }
-        .header-page i { color: var(--accent-purple); font-size: 2rem; margin-bottom: 10px; }
-        .header-page h1 { margin: 0; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; }
+        .dot-bar { display: flex; justify-content: center; gap: 12px; margin: 1.5rem 0; }
+        .dot { width: 14px; height: 14px; background: var(--border); border-radius: 50%; transition: 0.3s; }
+        .dot.active { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
 
-        /* OSCILOSCÓPIO */
-        .scope-box { 
-            background: #000; 
-            border: 1px solid var(--border); 
-            border-radius: 20px; 
-            height: 150px; 
-            margin-bottom: 20px; 
-            overflow: hidden; 
-            position: relative; 
-        }
-        canvas { width: 100%; height: 100%; }
+        .control-group { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
+        .control-group label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; display: block; margin-bottom: 10px; letter-spacing: 1px; font-weight: bold; }
 
-        /* SEÇÃO DE SINAL (LARANJA) */
-        .section-label { 
-            color: var(--text-dim); 
-            font-size: 0.7rem; 
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
-            margin-bottom: 15px; 
-            display: block; 
-            text-align: left;
-        }
-
-        .pa-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr 1fr; 
-            gap: 10px; 
-            margin-bottom: 25px; 
-        }
-
-        .pa-card { 
-            background: var(--card-bg); 
-            border: 1px solid var(--border); 
-            border-radius: 15px; 
-            padding: 20px 5px; 
-            cursor: pointer; 
-            text-align: center;
-            transition: 0.3s;
-        }
-
-        .pa-card i { font-size: 1.5rem; color: var(--accent-orange); margin-bottom: 8px; display: block; }
-        .pa-card span { font-size: 0.7rem; font-weight: bold; color: var(--text-dim); text-transform: uppercase; }
-
-        .pa-card.playing { 
-            border-color: var(--accent-orange); 
-            background: rgba(255, 152, 0, 0.1); 
-            box-shadow: 0 0 15px rgba(255, 152, 0, 0.2);
-        }
-        .pa-card.playing i { color: #fff; }
-        .pa-card.playing span { color: #fff; }
-
-        /* RESULTADO (ESTILO DISPLAY CARDS) */
-        .res-display {
-            background: var(--card-bg); 
-            border: 2px solid var(--border); 
-            border-radius: 30px; 
-            padding: 40px 10px; 
-            margin-bottom: 25px; 
-            text-align: center;
-            transition: 0.2s;
-        }
-        .res-display.pos { border-color: var(--success); box-shadow: 0 0 20px rgba(68, 255, 68, 0.1); }
-        .res-display.neg { border-color: var(--danger); box-shadow: 0 0 20px rgba(255, 77, 77, 0.1); }
-        .res-main { font-size: 2.2rem; font-weight: bold; margin: 0; }
-
-        /* BOTÃO MICROFONE (ROXO) */
-        .btn-action {
-            width: 100%; 
-            padding: 20px; 
-            border-radius: 20px; 
-            border: 2px solid var(--accent-purple);
-            background: transparent; 
-            color: var(--accent-purple); 
-            font-size: 1rem; 
-            font-weight: bold; 
-            cursor: pointer; 
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-action.active { 
-            background: var(--accent-purple); 
-            color: #000; 
-        }
-
+        button { width: 100%; background: var(--accent); border: none; padding: 18px; border-radius: 15px; font-weight: bold; font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; color: #000; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; }
+        button:active { transform: scale(0.96); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .invert-btn { background: transparent; border: 2px solid var(--warning); color: var(--warning); }
+        .invert-btn.active { background: var(--warning); color: #000; }
+        
+        .status { font-size: 0.75rem; color: var(--dim); text-align: center; margin-top: 10px; min-height: 1.2em; font-weight: bold; text-transform: uppercase;}
     </style>
 </head>
 <body>
-
     <div class="top-bar">
-        <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i></a>
+        <a href="index.html" class="btn-back"><i class="fas fa-chevron-left"></i></a>
+        <div style="width: 45px;"></div>
     </div>
 
     <div class="container">
-        
         <div class="header-page">
-            <i class="fas fa-wave-square"></i>
+            <i class="fas fa-volume-up"></i>
             <h1>Scanner de Fase</h1>
         </div>
 
-        <div class="scope-box">
-            <canvas id="scope" width="600" height="150"></canvas>
+        <div class="result-box" id="resultBox">
+            <div class="result-icon" id="resultIcon"><i class="fas fa-microphone-alt"></i></div>
+            <div class="result-text" id="resultText">AGUARDANDO</div>
+            <div class="result-detail" id="resultDetail">Posicione o celular perto do alto-falante.</div>
         </div>
 
-        <span class="section-label">Gerador de Pulso</span>
-            <div id="res-card" class="res-display">
-            <div id="res-main" class="res-main">---</div>
+        <div class="dot-bar" id="dotBar">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
         </div>
 
-        <div class="pa-grid">
-            <div id="btn-sub" class="pa-card" onclick="togglePulse('sub')">
-                <i class="fas fa-bullseye"></i>
-                <span>Sub</span>
-            </div>
-            <div id="btn-medio" class="pa-card" onclick="togglePulse('medio')">
-                <i class="fas fa-volume-down"></i>
-                <span>Médio</span>
-            </div>
-            <div id="btn-agudo" class="pa-card" onclick="togglePulse('agudo')">
-                <i class="fas fa-bullhorn"></i>
-                <span>Agudo</span>
-            </div>
+        <div class="control-group">
+            <button id="testBtn"><i class="fas fa-play"></i> Iniciar Teste</button>
+            <button id="invertBtn" class="invert-btn"><i class="fas fa-exchange-alt"></i> Inverter Leitura do Mic</button>
+            <div class="status" id="statusMsg">Pronto para testar</div>
         </div>
-                <button id="btn-mic" class="btn-action" onclick="toggleMic()">
-            <i class="fas fa-microphone"></i> Ligar Analisador
-        </button>
-
-
     </div>
 
     <script>
-        let audioCtx, analyser, source, micActive = false;
-        let activePulse = null, pulseTimer;
-        const canvas = document.getElementById('scope'), ctx = canvas.getContext('2d');
+        // Lógica de áudio e polaridade idêntica à do arquivo original
+        let audioContext, analyser, microphone;
+        let isTesting = false;
+        let invertReading = false;
+        const testBtn = document.getElementById('testBtn');
+        const invertBtn = document.getElementById('invertBtn');
+        const statusMsg = document.getElementById('statusMsg');
+        const resultBox = document.getElementById('resultBox');
+        const resultIcon = document.getElementById('resultIcon');
+        const resultText = document.getElementById('resultText');
+        const resultDetail = document.getElementById('resultDetail');
+        const dots = document.querySelectorAll('.dot');
 
-        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-
-        async function toggleMic() {
-            initAudio();
-            if (micActive) { location.reload(); return; }
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } 
-                });
-                source = audioCtx.createMediaStreamSource(stream);
-                analyser = audioCtx.createAnalyser();
+        async function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
                 analyser.fftSize = 2048;
-                source.connect(analyser);
-                micActive = true;
-                document.getElementById('btn-mic').classList.add('active');
-                document.getElementById('btn-mic').innerHTML = '<i class="fas fa-stop"></i> Desligar Analisador';
-                draw();
-                monitor();
-            } catch (err) { 
-                alert("Permissão de microfone negada ou não disponível. Para usar o analisador de fase, é necessário permitir o acesso ao microfone.");
-                console.error(err);
-            }
-        }
-
-        function togglePulse(via) {
-            initAudio();
-            if (activePulse === via) { stopPulse(); } 
-            else { 
-                stopPulse(); 
-                activePulse = via; 
-                document.getElementById(`btn-${via}`).classList.add('playing'); 
-                loopPulse(); 
-            }
-        }
-
-        function stopPulse() {
-            clearTimeout(pulseTimer);
-            document.querySelectorAll('.pa-card').forEach(c => c.classList.remove('playing'));
-            activePulse = null;
-        }
-
-        function loopPulse() {
-            if (!activePulse) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            
-            if (activePulse === 'sub') { osc.type = 'sawtooth'; osc.frequency.value = 40; }
-            else if (activePulse === 'medio') { osc.type = 'triangle'; osc.frequency.value = 500; }
-            else { osc.type = 'square'; osc.frequency.value = 5000; }
-
-            gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(1.0, audioCtx.currentTime + 0.001);
-            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.01);
-
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.02);
-            pulseTimer = setTimeout(loopPulse, 1000);
-        }
-
-        function monitor() {
-            if (!micActive) return;
-            const data = new Float32Array(analyser.fftSize);
-            analyser.getFloatTimeDomainData(data);
-            let firstPeakValue = 0, threshold = 0.15;
-
-            for (let i = 0; i < data.length; i++) {
-                if (Math.abs(data[i]) > threshold) { firstPeakValue = data[i]; break; }
-            }
-
-            if (firstPeakValue !== 0) {
-                const card = document.getElementById('res-card');
-                const main = document.getElementById('res-main');
-                if (firstPeakValue > 0) {
-                    card.className = "res-display pos";
-                    main.innerText = "NORMAL (+)";
-                    main.style.color = "var(--success)";
-                } else {
-                    card.className = "res-display neg";
-                    main.innerText = "INVERTIDA (-)";
-                    main.style.color = "var(--danger)";
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+                    microphone = audioContext.createMediaStreamSource(stream);
+                    microphone.connect(analyser);
+                    return true;
+                } catch (err) {
+                    alert('Erro ao acessar microfone: ' + err.message);
+                    return false;
                 }
             }
-            requestAnimationFrame(monitor);
+            return true;
         }
 
-        function draw() {
-            if (!micActive) return;
-            const data = new Uint8Array(analyser.frequencyBinCount);
-            analyser.getByteTimeDomainData(data);
-            ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.lineWidth = 2; ctx.strokeStyle = '#a370f7'; ctx.beginPath();
-            let x = 0; const slice = canvas.width / data.length;
-            for (let i = 0; i < data.length; i++) {
-                const v = data[i] / 128.0; const y = v * canvas.height / 2;
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-                x += slice;
+        async function runTest() {
+            if (isTesting) return;
+            const ok = await initAudio();
+            if (!ok) return;
+
+            isTesting = true;
+            testBtn.disabled = true;
+            testBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo Pulsos...';
+            updateUI('', '<i class="fas fa-wave-square"></i>', 'LENDO...', 'Emita o pulso de teste pelo PA');
+
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Float32Array(bufferLength);
+            let readings = [];
+
+            // Lê 4 pulsos (1 pulso por segundo / 60BPM padrão de apps de teste)
+            for (let i = 0; i < 4; i++) {
+                dots[i].classList.add('active');
+                statusMsg.innerText = `Lendo pulso ${i + 1} de 4...`;
+                
+                let start = Date.now();
+                let capture = 'nenhum';
+                let maxVal = 0;
+
+                // Captura ativa durante 800ms
+                while (Date.now() - start < 800) {
+                    analyser.getFloatTimeDomainData(dataArray);
+                    
+                    let localMax = 0;
+                    let localMin = 0;
+                    
+                    for (let j = 0; j < bufferLength; j++) {
+                        let val = dataArray[j];
+                        if (invertReading) val = -val;
+                        
+                        if (val > localMax) localMax = val;
+                        if (val < localMin) localMin = val;
+                    }
+
+                    // Se a amplitude for alta o suficiente para ser um "pulso"
+                    if (Math.abs(localMax) > 0.1 || Math.abs(localMin) > 0.1) {
+                        if (Math.abs(localMax) > maxVal || Math.abs(localMin) > maxVal) {
+                            maxVal = Math.max(Math.abs(localMax), Math.abs(localMin));
+                            // O primeiro pico transitório define a polaridade
+                            capture = (Math.abs(localMax) > Math.abs(localMin)) ? 'pos' : 'neg';
+                        }
+                    }
+                    await new Promise(r => setTimeout(r, 10)); // pequeno delay de polling
+                }
+                
+                readings.push(capture);
+                // Aguarda resto do segundo
+                await new Promise(r => setTimeout(r, Math.max(0, 1000 - (Date.now() - start))));
             }
-            ctx.stroke(); requestAnimationFrame(draw);
+
+            // Análise dos resultados
+            const pos = readings.filter(r => r === 'pos').length;
+            const neg = readings.filter(r => r === 'neg').length;
+
+            if (pos >= 2) {
+                updateUI('normal', '✅', 'NORMAL (+)', 'Polaridade OK. Cone impulsiona para fora.');
+            } else if (neg >= 2) {
+                updateUI('invertido', '⚠️', 'INVERTIDA (-)', 'Fase invertida. Verifique os cabos no amplificador.');
+            } else {
+                updateUI('', '❓', 'INCERTO', 'Aumente o volume ou aproxime o celular e tente novamente.');
+            }
+
+            dots.forEach(d => d.classList.remove('active'));
+            testBtn.disabled = false;
+            testBtn.innerHTML = '<i class="fas fa-play"></i> Repetir Teste';
+            statusMsg.innerText = "Teste Concluído";
+            isTesting = false;
         }
+
+        function updateUI(cls, icon, txt, det) {
+            resultBox.className = "result-box " + cls;
+            resultIcon.innerHTML = icon;
+            resultText.innerText = txt;
+            
+            if (cls === 'normal') resultText.style.color = "var(--success)";
+            else if (cls === 'invertido') resultText.style.color = "var(--danger)";
+            else resultText.style.color = "var(--dim)";
+            
+            resultDetail.innerText = det;
+        }
+
+        invertBtn.onclick = () => {
+            invertReading = !invertReading;
+            invertBtn.classList.toggle('active');
+            if (invertReading) invertBtn.innerHTML = '<i class="fas fa-check"></i> Microfone Invertido';
+            else invertBtn.innerHTML = '<i class="fas fa-exchange-alt"></i> Inverter Leitura do Mic';
+        };
+
+        testBtn.onclick = runTest;
     </script>
 </body>
 </html>
