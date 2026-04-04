@@ -21,20 +21,32 @@
         .header { text-align: center; margin-bottom: 25px; }
         .header i { font-size: 2.2rem; color: var(--accent); margin-bottom: 10px; display: inline-block; background: var(--inner-bg); padding: 15px; border-radius: 20px; box-shadow: 0 0 0 1px var(--border); }
 
+        /* Grid de Ruídos */
         .noise-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .btn-noise { background: var(--card); border: 1px solid var(--border); color: white; padding: 25px 15px; border-radius: 1.5rem; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; font-size: 0.9rem; font-weight: bold; gap: 10px; text-transform: uppercase; letter-spacing: 1px; }
         .btn-noise i { font-size: 1.8rem; color: var(--dim); transition: 0.2s; }
         
-        /* Estado Ativo dos Botões */
         .btn-noise.active { border-color: var(--accent); background: var(--inner-bg); box-shadow: 0 0 15px rgba(68,255,68,0.1); }
         .btn-noise.active i, .btn-noise.active span { color: var(--accent); }
         .btn-noise:active { transform: scale(0.95); }
 
         .control-group { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; text-align: center; }
+        .section-title { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; font-weight: bold; display: block; margin-bottom: 15px; text-align: left; border-left: 3px solid var(--accent); padding-left: 8px; }
+
+        /* Grid Teste de Vias */
+        .vias-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 5px; }
+        .btn-via { background: var(--inner-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px 2px; text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .btn-via i { font-size: 1.3rem; color: var(--dim); transition: 0.2s; }
+        .btn-via .via-name { font-size: 0.65rem; font-weight: bold; text-transform: uppercase; color: white; transition: 0.2s; }
+        .btn-via .via-freq { font-size: 0.55rem; color: var(--dim); font-weight: bold; transition: 0.2s; }
+        
+        .btn-via.active { border-color: var(--accent); background: rgba(68, 255, 68, 0.05); box-shadow: 0 0 10px rgba(68, 255, 68, 0.1); }
+        .btn-via.active i, .btn-via.active .via-name, .btn-via.active .via-freq { color: var(--accent); }
+        .btn-via:active { transform: scale(0.95); }
+
+        /* Controle Deslizante Senoide */
         .freq-display { font-size: 2.5rem; font-weight: bold; color: var(--accent); display: block; margin: 10px 0; }
-        
         input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; margin-top: 10px; }
-        
         .btn-sine { width: 100%; margin-top: 20px; flex-direction: row; justify-content: center; padding: 15px; border-radius: 1rem; }
     </style>
 </head>
@@ -61,64 +73,117 @@
         </div>
 
         <div class="control-group">
-            <span style="font-size: 0.65rem; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; font-weight:bold;">Frequência Fixa (Senoide)</span>
+            <span class="section-title">Teste Rápido por Via</span>
+            <div class="vias-grid">
+                <div class="btn-via" id="btn-grave" onclick="toggleVia(62, 'btn-grave')">
+                    <i class="fas fa-cube"></i>
+                    <span class="via-name">Grave</span>
+                    <span class="via-freq">62 Hz</span>
+                </div>
+                <div class="btn-via" id="btn-medio" onclick="toggleVia(500, 'btn-medio')">
+                    <i class="fas fa-layer-group"></i>
+                    <span class="via-name">Médio</span>
+                    <span class="via-freq">500 Hz</span>
+                </div>
+                <div class="btn-via" id="btn-drive" onclick="toggleVia(4000, 'btn-drive')">
+                    <i class="fas fa-bullhorn"></i>
+                    <span class="via-name">Drive</span>
+                    <span class="via-freq">4 kHz</span>
+                </div>
+                <div class="btn-via" id="btn-tw" onclick="toggleVia(10000, 'btn-tw')">
+                    <i class="fas fa-bolt"></i>
+                    <span class="via-name">Tweeter</span>
+                    <span class="via-freq">10 kHz</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <span class="section-title">Frequência Manual (Varredura)</span>
             <span class="freq-display" id="f-val">440Hz</span>
             <input type="range" id="f-slider" min="20" max="1000" value="440" oninput="updateFreq()">
             
             <button class="btn-noise btn-sine" id="btn-sine" onclick="toggleSine()">
                 <i class="fas fa-podcast"></i>
-                <span id="sine-text">Ligar Senoide</span>
+                <span id="sine-text">Ligar Senoide Manual</span>
             </button>
         </div>
     </div>
 
     <script>
         let audioCtx;
+        let masterGain;
         let noiseNode = null;
         let oscNode = null;
-        let activeSignal = null; // 'pink', 'white', ou 'sine'
+        let activeSignal = null; // 'pink', 'white', 'sine'
+        let activeVia = null; // Armazena qual botão de via está ativo
 
-        // Inicializa o contexto de áudio (necessário interação do usuário primeiro)
         async function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                masterGain = audioCtx.createGain();
+                masterGain.gain.value = 0.6; // Proteção: Volume em 60% para evitar sustos
+                masterGain.connect(audioCtx.destination);
             }
             if (audioCtx.state === 'suspended') {
                 await audioCtx.resume();
             }
         }
 
-        // Para qualquer som que esteja tocando
+        // Função para desligar qualquer som ativo
         function stopAllSignals() {
             if (noiseNode) { noiseNode.stop(); noiseNode.disconnect(); noiseNode = null; }
             if (oscNode) { oscNode.stop(); oscNode.disconnect(); oscNode = null; }
             
-            // Reseta visual dos botões
+            // Reseta todos os botões visuais
             document.getElementById('btn-pink').classList.remove('active');
             document.getElementById('btn-white').classList.remove('active');
             document.getElementById('btn-sine').classList.remove('active');
-            document.getElementById('sine-text').innerText = "Ligar Senoide";
+            document.getElementById('sine-text').innerText = "Ligar Senoide Manual";
+            document.querySelectorAll('.btn-via').forEach(b => b.classList.remove('active'));
+            
             activeSignal = null;
+            activeVia = null;
         }
 
-        // Gerador de Ruído Branco
+        // --- TESTE DE VIAS RÁPIDO (Botões de Frequência Fixa) ---
+        async function toggleVia(freq, btnId) {
+            await initAudio();
+
+            // Se clicou no botão que já está tocando, ele apenas desliga
+            if (activeSignal === 'via' && activeVia === btnId) {
+                stopAllSignals();
+                return;
+            }
+
+            stopAllSignals();
+            activeSignal = 'via';
+            activeVia = btnId;
+
+            oscNode = audioCtx.createOscillator();
+            oscNode.type = 'sine';
+            oscNode.frequency.value = freq;
+            oscNode.connect(masterGain);
+            oscNode.start();
+
+            // Ativa visualmente o botão clicado
+            document.getElementById(btnId).classList.add('active');
+        }
+
+        // --- GERADORES DE RUÍDO ---
         function createWhiteNoiseBuffer() {
-            const bufferSize = audioCtx.sampleRate * 2; // 2 segundos de buffer
+            const bufferSize = audioCtx.sampleRate * 2;
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const output = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                output[i] = Math.random() * 2 - 1;
-            }
+            for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
             return buffer;
         }
 
-        // Gerador de Ruído Rosa (Algoritmo de filtro Paul Kellet)
         function createPinkNoiseBuffer() {
             const bufferSize = audioCtx.sampleRate * 2;
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const output = buffer.getChannelData(0);
             let b0=0, b1=0, b2=0, b3=0, b4=0, b5=0, b6=0;
-            
             for (let i = 0; i < bufferSize; i++) {
                 let white = Math.random() * 2 - 1;
                 b0 = 0.99886 * b0 + white * 0.0555179;
@@ -128,65 +193,55 @@
                 b4 = 0.55000 * b4 + white * 0.5329522;
                 b5 = -0.7616 * b5 - white * 0.0168980;
                 output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
-                output[i] *= 0.11; // Controle de ganho para não clipar
+                output[i] *= 0.11;
                 b6 = white * 0.115926;
             }
             return buffer;
         }
 
-        // Toca ruído (Rosa ou Branco)
         async function toggleNoise(type) {
             await initAudio();
-
-            // Se clicar no que já está tocando, apenas desliga
-            if (activeSignal === type) {
-                stopAllSignals();
-                return;
-            }
-
+            if (activeSignal === type) { stopAllSignals(); return; }
             stopAllSignals();
             activeSignal = type;
 
             const buffer = type === 'pink' ? createPinkNoiseBuffer() : createWhiteNoiseBuffer();
-            
             noiseNode = audioCtx.createBufferSource();
             noiseNode.buffer = buffer;
             noiseNode.loop = true;
-            noiseNode.connect(audioCtx.destination);
+            noiseNode.connect(masterGain);
             noiseNode.start();
 
-            // Atualiza UI
             document.getElementById(`btn-${type}`).classList.add('active');
         }
 
-        // Toca Senoide
+        // --- SENOIDE MANUAL COM SLIDER ---
         async function toggleSine() {
             await initAudio();
-
-            if (activeSignal === 'sine') {
-                stopAllSignals();
-                return;
-            }
-
+            if (activeSignal === 'sine_manual') { stopAllSignals(); return; }
+            
             stopAllSignals();
-            activeSignal = 'sine';
+            activeSignal = 'sine_manual';
 
             oscNode = audioCtx.createOscillator();
             oscNode.type = 'sine';
             oscNode.frequency.value = document.getElementById('f-slider').value;
-            oscNode.connect(audioCtx.destination);
+            oscNode.connect(masterGain);
             oscNode.start();
 
-            // Atualiza UI
             document.getElementById('btn-sine').classList.add('active');
             document.getElementById('sine-text').innerText = "Desligar Senoide";
         }
 
-        // Atualiza a frequência no display e no oscilador em tempo real
         function updateFreq() {
             const f = document.getElementById('f-slider').value;
-            document.getElementById('f-val').innerText = f + "Hz";
-            if (oscNode && activeSignal === 'sine') {
+            if (f >= 1000) {
+                document.getElementById('f-val').innerText = (f / 1000).toFixed(1) + "kHz";
+            } else {
+                document.getElementById('f-val').innerText = f + "Hz";
+            }
+            
+            if (oscNode && activeSignal === 'sine_manual') {
                 oscNode.frequency.setValueAtTime(f, audioCtx.currentTime);
             }
         }
