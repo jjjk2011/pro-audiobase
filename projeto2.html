@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Projeto Sistema - AudioBase Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            --bg: #0a0e14; 
+            --card: #161b22; 
+            --inner-bg: #0d1117; 
+            --border: #30363d; 
+            --text: #ffffff; 
+            --dim: #8b949e; 
+            --accent: #00d2ff; /* Ciano para Projeto */
+            --purple: #a370f7; 
+            --success: #44ff44; 
+            --danger: #ff4d4d; 
+            --warning: #ffcc00;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding-bottom: 50px; 
+        }
+
+        .top-bar { 
+            width: 100%; 
+            max-width: 500px; 
+            padding: 20px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+        }
+
+        .btn-back { 
+            color: var(--text); 
+            text-decoration: none; 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: 0.2s; 
+        }
+        .btn-back:active { transform: scale(0.95); }
+
+        .container { width: 90%; max-width: 500px; }
+
+        .header-page { text-align: center; margin: 10px 0 25px; }
+        .header-page i { color: var(--accent); font-size: 2rem; margin-bottom: 10px; display: inline-block; background: var(--inner-bg); padding: 15px; border-radius: 20px; box-shadow: 0 0 0 1px var(--border); }
+        .header-page h1 { margin: 0; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; }
+
+        .results-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 10px; margin-bottom: 20px; }
+        
+        .res-item { background: var(--inner-bg); border: 2px solid var(--border); border-radius: 15px; padding: 15px 5px; text-align: center; transition: 0.3s; }
+        .res-item.active { border-color: var(--accent); box-shadow: 0 0 15px rgba(0,210,255,0.15); background: var(--card); }
+        .res-item .lab { color: var(--dim); font-size: 0.55rem; text-transform: uppercase; display: block; margin-bottom: 8px; letter-spacing: 1px; font-weight: bold;}
+        .res-item .val { color: var(--text); font-size: 1.1rem; font-weight: bold; }
+        .res-item.active .val { color: var(--accent); font-size: 1.2rem; }
+
+        .control-group { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
+        
+        .group-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid; padding-left: 10px; font-weight: bold;}
+        .title-amp { color: var(--purple); border-color: var(--purple); }
+        .title-carga { color: var(--accent); border-color: var(--accent); }
+
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .col { width: 100%; }
+        
+        label { display: block; color: var(--dim); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 8px; font-weight: bold; }
+
+        select, input { width: 100%; background: var(--inner-bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 10px; font-size: 0.95rem; outline: none; box-sizing: border-box; }
+        
+        .bridge-badge { background: var(--warning); color: #000; font-size: 0.6rem; padding: 3px 8px; border-radius: 6px; font-weight: bold; display: none; letter-spacing: 1px; }
+
+        .analysis-card { background: var(--inner-bg); border: 2px solid var(--border); border-radius: 20px; padding: 25px; transition: 0.3s ease; margin-top: 5px; }
+        .status-title { font-size: 1rem; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .status-desc { color: var(--dim); font-size: 0.85rem; line-height: 1.5; }
+        b { color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="index.html" class="btn-back"><i class="fas fa-chevron-left"></i></a>
+        <div style="width: 45px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="header-page">
+            <i class="fas fa-microchip"></i>
+            <h1>Projeto Sistema</h1>
+        </div>
+        
+        <div class="results-grid">
+            <div class="res-item"><span class="lab">Impedância</span><span class="val" id="res-imp">0.0Ω</span></div>
+            <div class="res-item active"><span class="lab">Vrms Limiter</span><span class="val" id="res-vrms">0.0V</span></div>
+            <div class="res-item"><span class="lab">Pot. Canal</span><span class="val" id="res-pot">0W</span></div>
+        </div>
+
+        <div class="control-group">
+            <span class="group-title title-amp">1. Amplificador <span id="bridge-badge" class="bridge-badge">MODO PONTE</span></span>
+            <div class="row">
+                <div class="col">
+                    <label>Canais</label>
+                    <select id="a-ch" onchange="checkMono(); calc();">
+                        <option value="1">1 Canal (Mono)</option>
+                        <option value="2">2 Canais</option>
+                        <option value="4" selected>4 Canais</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label>Modo Saída</label>
+                    <select id="a-mo" onchange="calc()">
+                        <option value="st">STEREO</option>
+                        <option value="br">BRIDGE</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label>Ω Mín. Canal</label>
+                    <select id="a-min" onchange="calc()">
+                        <option value="0.5">0.5 Ω</option>
+                        <option value="1">1.0 Ω</option>
+                        <option value="2" selected>2.0 Ω</option>
+                        <option value="4">4.0 Ω</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label>Watts/Canal</label>
+                    <input type="number" id="a-w" value="1200" oninput="calc()">
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group" style="border-color: var(--accent);">
+            <span class="group-title title-carga">2. Carga por Saída</span>
+            <div class="row">
+                <div class="col">
+                    <label>Qtd Falantes</label>
+                    <input type="number" id="q" value="2" min="1" oninput="calc()">
+                </div>
+                <div class="col">
+                    <label>Ohms Unit.</label>
+                    <select id="f-i" onchange="calc()">
+                        <option value="2">2 Ω</option>
+                        <option value="4" selected>4 Ω</option>
+                        <option value="8">8 Ω</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label>Watts RMS (Cada)</label>
+                    <input type="number" id="f-w" value="500" oninput="calc()">
+                </div>
+                <div class="col">
+                    <label>Ligação</label>
+                    <select id="t" onchange="calc()">
+                        <option value="p">Paralelo</option>
+                        <option value="s">Série</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="status-card" class="analysis-card">
+            <div id="status-title" class="status-title">ANÁLISE</div>
+            <div id="status-desc" class="status-desc">Preencha os dados para analisar o cenário.</div>
+        </div>
+    </div>
+
+    <script>
+        function checkMono() {
+            const channels = document.getElementById('a-ch').value;
+            const modeSelect = document.getElementById('a-mo');
+            if (channels === "1") { modeSelect.value = "st"; modeSelect.disabled = true; } 
+            else { modeSelect.disabled = false; }
+        }
+
+        function calc() {
+            // Inputs Amp
+            const aw = parseFloat(document.getElementById('a-w').value) || 0;
+            const am = document.getElementById('a-mo').value;
+            const amin = parseFloat(document.getElementById('a-min').value);
+            // Inputs Carga
+            const q = parseInt(document.getElementById('q').value) || 1;
+            const fi = parseFloat(document.getElementById('f-i').value);
+            const fw = parseFloat(document.getElementById('f-w').value) || 0;
+            const t = document.getElementById('t').value;
+
+            // 1. Cálculos de Carga
+            let it = (t === 'p') ? (fi / q) : (fi * q);
+            let pt = fw * q;
+            let vrms = Math.sqrt(pt * it);
+
+            // 2. Lógica Bridge
+            let ampPotDisp = (am === 'br') ? aw * 2 : aw;
+            let ampMinReal = (am === 'br') ? amin * 2 : amin;
+            let headroom = ampPotDisp / pt;
+            
+            const badge = document.getElementById('bridge-badge');
+            badge.style.display = (am === 'br') ? 'inline-block' : 'none';
+
+            // 3. Atualiza Interface Topo
+            document.getElementById('res-imp').innerText = it.toFixed(1) + "Ω";
+            document.getElementById('res-vrms').innerText = vrms.toFixed(1) + "V";
+            document.getElementById('res-pot').innerText = ampPotDisp + "W";
+
+            // 4. Sistema de Análise (Semáforo Técnico)
+            const card = document.getElementById('status-card');
+            const title = document.getElementById('status-title');
+            const desc = document.getElementById('status-desc');
+            
+            let sColor = ""; let sTitle = ""; let sDesc = "";
+
+            // CASO VERMELHO: IMPEDÂNCIA
+            if (it < ampMinReal) {
+                sColor = "var(--danger)";
+                sTitle = '<i class="fas fa-radiation"></i> PERIGO: IMPEDÂNCIA BAIXA';
+                sDesc = `Sua carga de <b>${it.toFixed(2)}Ω</b> está abaixo do mínimo de ${ampMinReal}Ω. O amplificador vai sobreaquecer e entrar em proteção ou queimar os transistores. <b>Corrija a ligação!</b>`;
+            } 
+            // CASO AMARELO: POTÊNCIA BAIXA (CLIPPING)
+            else if (headroom < 1) {
+                sColor = "var(--warning)";
+                sTitle = '<i class="fas fa-exclamation-triangle"></i> ATENÇÃO: RISCO DE CLIPPING';
+                sDesc = `O amplificador fornece apenas ${(headroom * 100).toFixed(0)}% da potência necessária. Ao tentar subir o volume, ele gerará <b>distorção harmônica (onda quadrada)</b>, queima rápida de drivers e tweeters.`;
+            }
+            // CASO AMARELO: POTÊNCIA EXCESSIVA
+            else if (headroom > 2.5) {
+                sColor = "var(--warning)";
+                sTitle = '<i class="fas fa-exclamation-circle"></i> ATENÇÃO: EXCESSO DE FORÇA';
+                sDesc = `O amplificador é muito potente (${headroom.toFixed(1)}x). Existe alto risco de <b>dano mecânico</b> (pular a bobina ou rasgar o cone). O Limiter em <b>${vrms.toFixed(1)}V</b> é obrigatório!`;
+            }
+            // CASO VERDE: IDEAL
+            else {
+                sColor = "var(--success)";
+                sTitle = '<i class="fas fa-check-circle"></i> SISTEMA IDEAL';
+                sDesc = `Combinação perfeita! Você tem um headroom de <b>${headroom.toFixed(1)}x</b>, garantindo som limpo e dinâmica. Configure seu Vrms Limiter em <b>${vrms.toFixed(1)}V</b> para proteção total.`;
+            }
+
+            // Aplicar Estilos
+            card.style.borderColor = sColor;
+            title.style.color = sColor;
+            title.innerHTML = sTitle;
+            desc.innerHTML = sDesc;
+        }
+
+        checkMono();
+        calc();
+    </script>
+</body>
+</html>
