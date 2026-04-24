@@ -122,7 +122,7 @@
             </div>
         </div>
 
-        <!-- 🔥 CALCULADORA SÉRIE/PARALELO (PRINCIPAL) -->
+        <!-- CALCULADORA SÉRIE/PARALELO (PRINCIPAL) -->
         <div class="control-group" style="border: 2px solid var(--accent);">
             <span class="group-title sp">
                 <i class="fas fa-project-diagram"></i> CONFIGURADOR DE CARGA (SÉRIE/PARALELO)
@@ -283,7 +283,7 @@
                 } else {
                     // Ajuste aproximado
                     paralelo = Math.round(qtdTotal / serie);
-                    if (parelo < 1) paralelo = 1;
+                    if (paralelo < 1) paralelo = 1;
                 }
                 document.getElementById('sp-serie').value = serie;
                 document.getElementById('sp-paralelo').value = paralelo;
@@ -295,14 +295,14 @@
             const potTotal = wattUnit * totalDrivers;
             const vrmsCarga = Math.sqrt(potTotal * impFinal);
 
-            // Atualiza UI da calculadora
+            // Atualiza UI da calculadora - CORRIGIDO: usando textContent em vez de innerHTML
             document.getElementById('sp-imp-final').textContent = impFinal.toFixed(2) + ' Ω';
             document.getElementById('sp-pot-final').textContent = potTotal + ' W';
             document.getElementById('sp-vrms-est').textContent = vrmsCarga.toFixed(1) + ' V';
             document.getElementById('sp-pot-driver').textContent = wattUnit + ' W';
             
             document.getElementById('config-resumo').innerHTML = 
-                `⚡ ${serie} em série (${impGrupo.toFixed(1)}Ω) → ${paralelo} grupos paralelo = ${totalDrivers} drivers | Total: <b>${impFinal.toFixed(2)}Ω</b> / <b>${potTotal}W</b>`;
+                '⚡ ' + serie + ' em série (' + impGrupo.toFixed(1) + 'Ω) → ' + paralelo + ' grupos paralelo = ' + totalDrivers + ' drivers | Total: <b>' + impFinal.toFixed(2) + 'Ω</b> / <b>' + potTotal + 'W</b>';
 
             // ---------- COLETA DADOS AMPLIFICADOR ----------
             const aw = parseFloat(document.getElementById('a-w').value) || 3000;
@@ -354,6 +354,7 @@
             let statusGeral = '';
             let icone = '';
             let corBorda = '';
+            let textoRecomendacao = '';
 
             // --- DIAGNÓSTICO 1: IMPEDÂNCIA ---
             if (impFinal < ampMinReal) {
@@ -362,26 +363,26 @@
                 statusGeral = 'PERIGO: IMPEDÂNCIA MUITO BAIXA';
                 icone = '🔴';
                 corBorda = 'var(--danger)';
-                dImpStatus.innerHTML = '<span style="color:var(--danger);">ABAIXO DO MÍNIMO</span>';
+                dImpStatus.textContent = 'ABAIXO DO MÍNIMO';
                 dImpStatus.className = 'd-value bad';
-                dThermal.innerHTML = '<span style="color:var(--danger);">ALTO RISCO</span>';
+                dThermal.textContent = 'ALTO RISCO';
                 dThermal.className = 'd-value bad';
-                recomendacao.innerHTML = `🚫 <b>IMPEDÂNCIA CRÍTICA:</b> Sua carga de <b>${impFinal.toFixed(2)}Ω</b> está abaixo do mínimo de <b>${ampMinReal}Ω</b> que o amplificador suporta. Isso causará <b>superaquecimento</b>, acionamento do circuito de proteção ou queima dos transistores de saída. <br><br>🔧 <b>Solução:</b> Aumente a impedância final. Ex: use mais drivers em série (ex: ${Math.ceil(ampMinReal * paralelo / ohmUnit)} em série) ou reduza grupos paralelo.`;
+                textoRecomendacao = '🚫 <b>IMPEDÂNCIA CRÍTICA:</b> Sua carga de <b>' + impFinal.toFixed(2) + 'Ω</b> está abaixo do mínimo de <b>' + ampMinReal + 'Ω</b> que o amplificador suporta. Isso causará <b>superaquecimento</b>, acionamento do circuito de proteção ou queima dos transistores de saída. <br><br>🔧 <b>Solução:</b> Aumente a impedância final. Ex: use mais drivers em série (ex: ' + Math.ceil(ampMinReal * paralelo / ohmUnit) + ' em série) ou reduza grupos paralelo.';
             } else if (impFinal <= ampMinReal * 1.2) {
                 nivelCompat = 50;
                 corBarra = 'var(--warning)';
-                dImpStatus.innerHTML = '<span style="color:var(--warning);">NO LIMITE</span>';
+                dImpStatus.textContent = 'NO LIMITE';
                 dImpStatus.className = 'd-value warn';
-                dThermal.innerHTML = '<span style="color:var(--warning);">ATENÇÃO</span>';
+                dThermal.textContent = 'ATENÇÃO';
                 dThermal.className = 'd-value warn';
                 if (statusGeral === '') statusGeral = 'ATENÇÃO: IMPEDÂNCIA NO LIMITE';
                 if (icone === '') icone = '🟡';
                 if (corBorda === '') corBorda = 'var(--warning)';
-                recomendacao.innerHTML = `⚠️ <b>IMPEDÂNCIA LIMÍTROFE:</b> ${impFinal.toFixed(2)}Ω está muito próximo do mínimo de ${ampMinReal}Ω. O amplificador funcionará, mas com <b>maior aquecimento</b> e menor margem de segurança. Evite uso prolongado em potência máxima.`;
+                textoRecomendacao = '⚠️ <b>IMPEDÂNCIA LIMÍTROFE:</b> ' + impFinal.toFixed(2) + 'Ω está muito próximo do mínimo de ' + ampMinReal + 'Ω. O amplificador funcionará, mas com <b>maior aquecimento</b> e menor margem de segurança. Evite uso prolongado em potência máxima.';
             } else {
-                dImpStatus.innerHTML = '<span style="color:var(--success);">OK ✓</span>';
+                dImpStatus.textContent = 'OK ✓';
                 dImpStatus.className = 'd-value good';
-                dThermal.innerHTML = '<span style="color:var(--success);">NORMAL</span>';
+                dThermal.textContent = 'NORMAL';
                 dThermal.className = 'd-value good';
                 if (nivelCompat < 70) nivelCompat = 70;
             }
@@ -393,41 +394,41 @@
                 statusGeral = 'PERIGO: AMPLIFICADOR INSUFICIENTE';
                 icone = '🔴';
                 corBorda = 'var(--danger)';
-                dHeadroom.innerHTML = `<span style="color:var(--danger);">${(headroom*100).toFixed(0)}% (CLIPPING)</span>`;
+                dHeadroom.textContent = (headroom*100).toFixed(0) + '% (CLIPPING)';
                 dHeadroom.className = 'd-value bad';
-                dClipRisk.innerHTML = '<span style="color:var(--danger);">CRÍTICO</span>';
+                dClipRisk.textContent = 'CRÍTICO';
                 dClipRisk.className = 'd-value bad';
-                recomendacao.innerHTML = `🔴 <b>CLIPPING GARANTIDO:</b> O amplificador fornece apenas <b>${(headroom*100).toFixed(0)}%</b> da potência que os drivers precisam (${potTotal}W). Ao tentar extrair mais volume, o sinal será <b>ceifado (onda quadrada)</b>, destruindo tweeters e drivers rapidamente. <br><br>🔧 <b>Solução:</b> Use amplificador mais potente ou reduza quantidade de drivers.`;
+                textoRecomendacao = '🔴 <b>CLIPPING GARANTIDO:</b> O amplificador fornece apenas <b>' + (headroom*100).toFixed(0) + '%</b> da potência que os drivers precisam (' + potTotal + 'W). Ao tentar extrair mais volume, o sinal será <b>ceifado (onda quadrada)</b>, destruindo tweeters e drivers rapidamente. <br><br>🔧 <b>Solução:</b> Use amplificador mais potente ou reduza quantidade de drivers.';
             } else if (headroom < 1.0) {
                 nivelCompat = Math.min(nivelCompat, 45);
                 corBarra = corBarra || 'var(--warning)';
                 if (statusGeral === '' || statusGeral.includes('IMPEDÂNCIA')) statusGeral = 'ATENÇÃO: POTÊNCIA NO LIMITE';
                 if (icone === '') icone = '🟡';
                 if (corBorda === '') corBorda = 'var(--warning)';
-                dHeadroom.innerHTML = `<span style="color:var(--warning);">${(headroom*100).toFixed(0)}% (AJUSTADO)</span>`;
+                dHeadroom.textContent = (headroom*100).toFixed(0) + '% (AJUSTADO)';
                 dHeadroom.className = 'd-value warn';
-                dClipRisk.innerHTML = '<span style="color:var(--warning);">MODERADO</span>';
+                dClipRisk.textContent = 'MODERADO';
                 dClipRisk.className = 'd-value warn';
-                recomendacao.innerHTML = `⚠️ <b>HEADROOM BAIXO:</b> O amplificador entrega apenas <b>${(headroom*100).toFixed(0)}%</b> da potência total dos drivers. Haverá pouca margem para dinâmica. Evite forçar o volume além de 80% para prevenir distorção.`;
+                textoRecomendacao = '⚠️ <b>HEADROOM BAIXO:</b> O amplificador entrega apenas <b>' + (headroom*100).toFixed(0) + '%</b> da potência total dos drivers. Haverá pouca margem para dinâmica. Evite forçar o volume além de 80% para prevenir distorção.';
             } else if (headroom > 3.0) {
                 if (nivelCompat >= 70) nivelCompat = 75;
-                dHeadroom.innerHTML = `<span style="color:var(--orange);">${headroom.toFixed(1)}x (EXCESSIVO)</span>`;
+                dHeadroom.textContent = headroom.toFixed(1) + 'x (EXCESSIVO)';
                 dHeadroom.className = 'd-value warn';
-                dClipRisk.innerHTML = '<span style="color:var(--success);">BAIXO</span>';
+                dClipRisk.textContent = 'BAIXO';
                 dClipRisk.className = 'd-value good';
                 if (corBorda === '') corBorda = 'var(--warning)';
                 if (statusGeral === '' || statusGeral.includes('IDEAL')) statusGeral = 'ATENÇÃO: EXCESSO DE POTÊNCIA';
-                recomendacao.innerHTML = `⚡ <b>HEADROOM EXCESSIVO (${headroom.toFixed(1)}x):</b> O amplificador é muito mais potente que os drivers. Risco de <b>danos mecânicos</b> (rasgar suspensão, bater bobina). O LIMITER em <b>${vrmsCarga.toFixed(1)}V</b> é <b>OBRIGATÓRIO</b> para proteção.`;
+                textoRecomendacao = '⚡ <b>HEADROOM EXCESSIVO (' + headroom.toFixed(1) + 'x):</b> O amplificador é muito mais potente que os drivers. Risco de <b>danos mecânicos</b> (rasgar suspensão, bater bobina). O LIMITER em <b>' + vrmsCarga.toFixed(1) + 'V</b> é <b>OBRIGATÓRIO</b> para proteção.';
             } else {
-                dHeadroom.innerHTML = `<span style="color:var(--success);">${headroom.toFixed(1)}x (IDEAL)</span>`;
+                dHeadroom.textContent = headroom.toFixed(1) + 'x (IDEAL)';
                 dHeadroom.className = 'd-value good';
-                dClipRisk.innerHTML = '<span style="color:var(--success);">BAIXO</span>';
+                dClipRisk.textContent = 'BAIXO';
                 dClipRisk.className = 'd-value good';
                 if (nivelCompat >= 70) nivelCompat = 100;
                 if (statusGeral === '' || statusGeral.includes('ATENÇÃO')) statusGeral = '✅ SISTEMA COMPATÍVEL';
                 if (icone === '' || icone === '🟡') icone = '🟢';
                 if (corBorda === '' || corBorda === 'var(--warning)') corBorda = 'var(--success)';
-                recomendacao.innerHTML = `✅ <b>CONFIGURAÇÃO EXCELENTE!</b> Headroom de <b>${headroom.toFixed(1)}x</b> garante som limpo com dinâmica. Configure o Limiter do processador em <b>${vrmsCarga.toFixed(1)}V RMS</b>. Impedância de <b>${impFinal.toFixed(2)}Ω</b> está segura para o amplificador (mín. ${ampMinReal}Ω).`;
+                textoRecomendacao = '✅ <b>CONFIGURAÇÃO EXCELENTE!</b> Headroom de <b>' + headroom.toFixed(1) + 'x</b> garante som limpo com dinâmica. Configure o Limiter do processador em <b>' + vrmsCarga.toFixed(1) + 'V RMS</b>. Impedância de <b>' + impFinal.toFixed(2) + 'Ω</b> está segura para o amplificador (mín. ' + ampMinReal + 'Ω).';
             }
 
             // Aplica valores finais
@@ -436,8 +437,8 @@
             panel.style.borderColor = corBorda;
             icon.textContent = icone;
             title.textContent = statusGeral;
-            subtitle.textContent = `Carga: ${impFinal.toFixed(2)}Ω / ${potTotal}W | Amp: ${ampPotDisp}W @ ${ampMinReal}Ω mín.`;
-            document.getElementById('recomendacao-texto').innerHTML = recomendacao;
+            subtitle.textContent = 'Carga: ' + impFinal.toFixed(2) + 'Ω / ' + potTotal + 'W | Amp: ' + ampPotDisp + 'W @ ' + ampMinReal + 'Ω mín.';
+            recomendacao.innerHTML = textoRecomendacao;
         }
 
         // =============== FUNÇÃO AUXILIAR ===============
@@ -459,7 +460,7 @@
             atualizarTudo();
             
             // Adiciona listeners para sincronização automática dos inputs da calculadora
-            ['sp-serie', 'sp-paralelo', 'sp-qtd'].forEach(id => {
+            ['sp-serie', 'sp-paralelo', 'sp-qtd'].forEach(function(id) {
                 document.getElementById(id).addEventListener('input', atualizarTudo);
             });
         };
