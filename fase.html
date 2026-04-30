@@ -4,52 +4,219 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Scanner de Fase | AudioBase Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --bg: #0a0e14; --card: #161b22; --inner-bg: #0d1117; --border: #30363d;
-            --text: #ffffff; --dim: #8b949e; 
-            --accent: #a370f7; --success: #44ff44; --danger: #ff4d4d; --warning: #ffcc00;
+            /* Cores Globais - Glassmorphism System */
+            --bg-base: #09090b;
+            --bg-gradient: radial-gradient(circle at top, #13131a 0%, #09090b 100%);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-hover: rgba(255, 255, 255, 0.06);
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            
+            /* Acentos */
+            --accent: #b042ff; /* Roxo Neon */
+            --accent-glow: rgba(176, 66, 255, 0.25);
+            --success: #39ff14;
+            --danger: #ff4d4d;
+            --warning: #ffcc00;
         }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 50px; }
-
-        .top-bar { width: 100%; max-width: 500px; padding: 20px; display: flex; align-items: center; justify-content: space-between; }
-        .btn-back { color: var(--text); text-decoration: none; background: var(--card); border: 1px solid var(--border); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .btn-back:active { transform: scale(0.95); }
-
-        .container { width: 90%; max-width: 480px; }
-
-        .header-page { text-align: center; margin: 10px 0 25px; }
-        .header-page i { color: var(--accent); font-size: 2rem; margin-bottom: 10px; display: inline-block; background: var(--inner-bg); padding: 15px; border-radius: 20px; box-shadow: 0 0 0 1px var(--border); }
-        .header-page h1 { margin: 0; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; }
-
-        .result-box { background: var(--inner-bg); border-radius: 25px; padding: 25px; text-align: center; margin-bottom: 20px; border: 2px solid var(--border); transition: all 0.3s ease; }
-        .result-box.normal { border-color: var(--success); box-shadow: 0 0 20px rgba(68,255,68,0.15); }
-        .result-box.invertido { border-color: var(--danger); box-shadow: 0 0 20px rgba(255,77,77,0.15); }
         
-        .result-icon { font-size: 3.5rem; margin-bottom: 10px; }
-        .result-text { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; color: var(--dim); }
-        .result-detail { font-size: 0.8rem; color: var(--dim); margin-top: 10px; font-weight: bold;}
+        body { 
+            background: var(--bg-base);
+            background-image: var(--bg-gradient);
+            color: var(--text-main); 
+            font-family: 'Outfit', system-ui, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding-bottom: 50px;
+            overflow-x: hidden;
+        }
 
-        .dot-bar { display: flex; justify-content: center; gap: 12px; margin: 1.5rem 0; }
-        .dot { width: 14px; height: 14px; background: var(--border); border-radius: 50%; transition: 0.3s; }
-        .dot.active { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+        /* Ambient Glow */
+        .bg-glow {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 300px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: -1;
+            filter: blur(50px);
+        }
 
-        .control-group { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
-        .control-group label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; display: block; margin-bottom: 10px; letter-spacing: 1px; font-weight: bold; }
-
-        button { width: 100%; background: var(--accent); border: none; padding: 18px; border-radius: 15px; font-weight: bold; font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; color: #000; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; }
-        button:active { transform: scale(0.96); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .top-bar { 
+            width: 100%; 
+            max-width: 500px; 
+            padding: 20px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            z-index: 1;
+        }
         
-        .invert-btn { background: transparent; border: 2px solid var(--warning); color: var(--warning); }
-        .invert-btn.active { background: var(--warning); color: #000; }
+        .btn-back { 
+            color: var(--text-muted); 
+            text-decoration: none; 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 14px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.3s; 
+            font-size: 1.1rem;
+        }
+        .btn-back:hover { background: var(--glass-hover); color: var(--text-main); border-color: rgba(255,255,255,0.2); }
+        .btn-back:active { transform: scale(0.92); }
+
+        .container { width: 90%; max-width: 480px; z-index: 1; }
+
+        .header-page { text-align: center; margin: 10px 0 20px; }
+        .header-page i { 
+            color: var(--accent); 
+            font-size: 1.8rem; 
+            margin-bottom: 12px; 
+            display: inline-block; 
+            background: rgba(0,0,0,0.3); 
+            padding: 15px; 
+            border-radius: 18px; 
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .header-page h1 { margin: 0; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+
+        .result-box { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(16px);
+            border-radius: 20px; 
+            padding: 25px; 
+            text-align: center; 
+            margin-bottom: 15px; 
+            border: 1px solid var(--glass-border); 
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
         
-        .status { font-size: 0.75rem; color: var(--dim); text-align: center; margin-top: 10px; min-height: 1.2em; font-weight: bold; text-transform: uppercase;}
+        .result-box::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+        }
+
+        .result-box.normal { border-color: var(--success); box-shadow: 0 0 30px rgba(57, 255, 20, 0.15); }
+        .result-box.normal::before { background: linear-gradient(90deg, transparent, var(--success), transparent); }
+        
+        .result-box.invertido { border-color: var(--danger); box-shadow: 0 0 30px rgba(255, 77, 77, 0.15); }
+        .result-box.invertido::before { background: linear-gradient(90deg, transparent, var(--danger), transparent); }
+        
+        .result-icon { 
+            font-size: 2.8rem; 
+            margin-bottom: 10px; 
+            text-shadow: 0 0 20px rgba(255,255,255,0.1); 
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+        }
+
+        @keyframes radar-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(176, 66, 255, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(176, 66, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(176, 66, 255, 0); }
+        }
+        
+        .result-icon.listening {
+            animation: radar-pulse 1.5s infinite;
+            border-radius: 50%;
+            background: rgba(176, 66, 255, 0.1);
+        }
+
+        .result-text { font-size: 1.3rem; font-weight: 800; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; }
+        .result-detail { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; font-weight: 400; line-height: 1.4; }
+
+        .canvas-container {
+            width: 100%;
+            height: 60px;
+            margin-top: 20px;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        canvas { width: 100%; height: 100%; display: block; }
+
+        .control-group { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); 
+            border-radius: 20px; 
+            padding: 20px; 
+            margin-bottom: 15px; 
+        }
+
+        button { 
+            width: 100%; 
+            border: none; 
+            padding: 16px; 
+            border-radius: 14px; 
+            font-weight: 700; 
+            font-size: 0.9rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 12px; 
+            margin-bottom: 12px; 
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-test {
+            background: var(--accent); 
+            color: #000; 
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .btn-test:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .btn-test:active { transform: scale(0.96); }
+        
+        .btn-test.active {
+            background: var(--danger);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
+        }
+
+        .invert-btn { 
+            background: transparent; 
+            border: 2px solid var(--warning); 
+            color: var(--warning); 
+            box-shadow: none;
+        }
+        .invert-btn:hover { background: rgba(255, 204, 0, 0.1); }
+        .invert-btn.active { background: var(--warning); color: #000; box-shadow: 0 0 20px rgba(255, 204, 0, 0.3); }
+        
+        .status { font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 10px; min-height: 1.2em; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
     </style>
 </head>
 <body>
+    <div class="bg-glow"></div>
+
     <div class="top-bar">
         <a href="index.html" class="btn-back"><i class="fas fa-chevron-left"></i></a>
         <div style="width: 45px;"></div>
@@ -63,26 +230,28 @@
 
         <div class="result-box" id="resultBox">
             <div class="result-icon" id="resultIcon"><i class="fas fa-microphone-alt"></i></div>
-            <div class="result-text" id="resultText">AGUARDANDO</div>
-            <div class="result-detail" id="resultDetail">Posicione o celular perto do alto-falante.</div>
-        </div>
-
-        <div class="dot-bar" id="dotBar">
-            <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            <div class="result-text" id="resultText">PARADO</div>
+            <div class="result-detail" id="resultDetail">Ative a escuta para começar o teste contínuo.</div>
+            
+            <div class="canvas-container">
+                <canvas id="oscCanvas" width="400" height="80"></canvas>
+            </div>
         </div>
 
         <div class="control-group">
-            <button id="testBtn"><i class="fas fa-play"></i> Iniciar Teste</button>
+            <button id="testBtn" class="btn-test"><i class="fas fa-play"></i> Ativar Escuta</button>
             <button id="invertBtn" class="invert-btn"><i class="fas fa-exchange-alt"></i> Inverter Leitura do Mic</button>
             <div class="status" id="statusMsg">Pronto para testar</div>
         </div>
     </div>
 
     <script>
-        // Lógica de áudio e polaridade idêntica à do arquivo original
         let audioContext, analyser, microphone;
         let isTesting = false;
         let invertReading = false;
+        let animationId;
+        let cooldown = false;
+
         const testBtn = document.getElementById('testBtn');
         const invertBtn = document.getElementById('invertBtn');
         const statusMsg = document.getElementById('statusMsg');
@@ -90,97 +259,144 @@
         const resultIcon = document.getElementById('resultIcon');
         const resultText = document.getElementById('resultText');
         const resultDetail = document.getElementById('resultDetail');
-        const dots = document.querySelectorAll('.dot');
+        const canvas = document.getElementById('oscCanvas');
+        const canvasCtx = canvas.getContext('2d');
 
         async function initAudio() {
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioContext.createAnalyser();
-                analyser.fftSize = 2048;
+                analyser.fftSize = 2048; // Alta resolução
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
                     microphone = audioContext.createMediaStreamSource(stream);
                     microphone.connect(analyser);
-                    return true;
                 } catch (err) {
                     alert('Erro ao acessar microfone: ' + err.message);
                     return false;
                 }
             }
+            if(audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
             return true;
         }
 
-        async function runTest() {
-            if (isTesting) return;
+        async function toggleTest() {
+            if (isTesting) {
+                stopTest();
+            } else {
+                startTest();
+            }
+        }
+
+        async function startTest() {
             const ok = await initAudio();
             if (!ok) return;
 
             isTesting = true;
-            testBtn.disabled = true;
-            testBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo Pulsos...';
-            updateUI('', '<i class="fas fa-wave-square"></i>', 'LENDO...', 'Emita o pulso de teste pelo PA');
+            testBtn.classList.add('active');
+            testBtn.innerHTML = '<i class="fas fa-stop"></i> Parar Escuta';
+            resultIcon.classList.add('listening');
+            updateUI('', '<i class="fas fa-satellite-dish"></i>', 'ESCUTANDO...', 'Aguardando pulso no microfone...');
+            statusMsg.innerText = "Modo Contínuo Ativado";
+            
+            analyzeAudio();
+        }
+
+        function stopTest() {
+            isTesting = false;
+            cancelAnimationFrame(animationId);
+            testBtn.classList.remove('active');
+            testBtn.innerHTML = '<i class="fas fa-play"></i> Ativar Escuta';
+            resultIcon.classList.remove('listening');
+            updateUI('', '<i class="fas fa-microphone-alt"></i>', 'PARADO', 'Ative a escuta para começar.');
+            statusMsg.innerText = "Pronto para testar";
+            
+            // Limpar canvas
+            canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawCanvas(dataArray, bufferLength) {
+            // Fundo escuro com leve transparência
+            canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+            canvasCtx.lineWidth = 2;
+            canvasCtx.strokeStyle = '#b042ff'; // Cor Roxo Neon (var(--accent))
+
+            canvasCtx.beginPath();
+
+            const sliceWidth = canvas.width * 1.0 / bufferLength;
+            let x = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                // Escala para caber no canvas. FloatTimeDomainData vai de -1 a 1
+                let v = dataArray[i];
+                if(invertReading) v = -v;
+                
+                const y = (v * 0.8 + 0.5) * canvas.height;
+
+                if (i === 0) {
+                    canvasCtx.moveTo(x, y);
+                } else {
+                    canvasCtx.lineTo(x, y);
+                }
+
+                x += sliceWidth;
+            }
+
+            canvasCtx.lineTo(canvas.width, canvas.height / 2);
+            canvasCtx.stroke();
+        }
+
+        function analyzeAudio() {
+            if (!isTesting) return;
 
             const bufferLength = analyser.frequencyBinCount;
             const dataArray = new Float32Array(bufferLength);
-            let readings = [];
+            analyser.getFloatTimeDomainData(dataArray);
 
-            // Lê 4 pulsos (1 pulso por segundo / 60BPM padrão de apps de teste)
-            for (let i = 0; i < 4; i++) {
-                dots[i].classList.add('active');
-                statusMsg.innerText = `Lendo pulso ${i + 1} de 4...`;
+            // 1. Desenhar a onda no Canvas
+            drawCanvas(dataArray, bufferLength);
+
+            // 2. Lógica de Disparo (Auto-Trigger)
+            if (!cooldown) {
+                let localMax = 0;
+                let localMin = 0;
                 
-                let start = Date.now();
-                let capture = 'nenhum';
-                let maxVal = 0;
-
-                // Captura ativa durante 800ms
-                while (Date.now() - start < 800) {
-                    analyser.getFloatTimeDomainData(dataArray);
-                    
-                    let localMax = 0;
-                    let localMin = 0;
-                    
-                    for (let j = 0; j < bufferLength; j++) {
-                        let val = dataArray[j];
-                        if (invertReading) val = -val;
-                        
-                        if (val > localMax) localMax = val;
-                        if (val < localMin) localMin = val;
-                    }
-
-                    // Se a amplitude for alta o suficiente para ser um "pulso"
-                    if (Math.abs(localMax) > 0.1 || Math.abs(localMin) > 0.1) {
-                        if (Math.abs(localMax) > maxVal || Math.abs(localMin) > maxVal) {
-                            maxVal = Math.max(Math.abs(localMax), Math.abs(localMin));
-                            // O primeiro pico transitório define a polaridade
-                            capture = (Math.abs(localMax) > Math.abs(localMin)) ? 'pos' : 'neg';
-                        }
-                    }
-                    await new Promise(r => setTimeout(r, 10)); // pequeno delay de polling
+                for (let i = 0; i < bufferLength; i++) {
+                    let val = dataArray[i];
+                    if (invertReading) val = -val;
+                    if (val > localMax) localMax = val;
+                    if (val < localMin) localMin = val;
                 }
-                
-                readings.push(capture);
-                // Aguarda resto do segundo
-                await new Promise(r => setTimeout(r, Math.max(0, 1000 - (Date.now() - start))));
+
+                // Threshold = Sensibilidade. Se o pulso for forte o suficiente:
+                const THRESHOLD = 0.25; 
+
+                if (Math.abs(localMax) > THRESHOLD || Math.abs(localMin) > THRESHOLD) {
+                    const isPositive = Math.abs(localMax) > Math.abs(localMin);
+                    
+                    if (isPositive) {
+                        updateUI('normal', '✅', 'NORMAL (+)', 'Cone impulsiona para fora.');
+                    } else {
+                        updateUI('invertido', '⚠️', 'INVERTIDA (-)', 'Fase invertida! Verifique os cabos.');
+                    }
+                    
+                    // Trava por 600ms para não engatilhar o eco do mesmo pulso
+                    cooldown = true;
+                    setTimeout(() => {
+                        cooldown = false;
+                        if(isTesting) {
+                            updateUI('', '<i class="fas fa-satellite-dish"></i>', 'ESCUTANDO...', 'Aguardando próximo pulso...');
+                        }
+                    }, 600); 
+                }
             }
 
-            // Análise dos resultados
-            const pos = readings.filter(r => r === 'pos').length;
-            const neg = readings.filter(r => r === 'neg').length;
-
-            if (pos >= 2) {
-                updateUI('normal', '✅', 'NORMAL (+)', 'Polaridade OK. Cone impulsiona para fora.');
-            } else if (neg >= 2) {
-                updateUI('invertido', '⚠️', 'INVERTIDA (-)', 'Fase invertida. Verifique os cabos no amplificador.');
-            } else {
-                updateUI('', '❓', 'INCERTO', 'Aumente o volume ou aproxime o celular e tente novamente.');
-            }
-
-            dots.forEach(d => d.classList.remove('active'));
-            testBtn.disabled = false;
-            testBtn.innerHTML = '<i class="fas fa-play"></i> Repetir Teste';
-            statusMsg.innerText = "Teste Concluído";
-            isTesting = false;
+            // Repete o loop na frequência do monitor (~60fps)
+            animationId = requestAnimationFrame(analyzeAudio);
         }
 
         function updateUI(cls, icon, txt, det) {
@@ -190,7 +406,7 @@
             
             if (cls === 'normal') resultText.style.color = "var(--success)";
             else if (cls === 'invertido') resultText.style.color = "var(--danger)";
-            else resultText.style.color = "var(--dim)";
+            else resultText.style.color = "var(--text-muted)";
             
             resultDetail.innerText = det;
         }
@@ -202,7 +418,7 @@
             else invertBtn.innerHTML = '<i class="fas fa-exchange-alt"></i> Inverter Leitura do Mic';
         };
 
-        testBtn.onclick = runTest;
+        testBtn.onclick = toggleTest;
     </script>
 </body>
 </html>
