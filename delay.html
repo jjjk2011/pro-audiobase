@@ -4,146 +4,268 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Delay / TA - AudioBase Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --bg: #0a0e14; 
-            --card: #161b22; 
-            --inner-bg: #0d1117; 
-            --border: #30363d;
-            --text: #ffffff; 
-            --dim: #8b949e; 
-            --accent: #ff9800; /* Laranja para o Delay */
+            --bg-base: #09090b;
+            --bg-gradient: radial-gradient(circle at top, #13131a 0%, #09090b 100%);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-hover: rgba(255, 255, 255, 0.06);
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --accent: #ff5500;
+            --accent-glow: rgba(255, 85, 0, 0.25);
+            --accent2: #00d2ff;
+            --accent2-glow: rgba(0, 210, 255, 0.2);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            background: var(--bg); 
-            color: var(--text); 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            min-height: 100vh; 
-            padding-bottom: 50px; 
+
+        body {
+            background: var(--bg-base);
+            background-image: var(--bg-gradient);
+            color: var(--text-main);
+            font-family: 'Outfit', system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-bottom: 60px;
+            overflow-x: hidden;
         }
 
-        .top-bar { 
-            width: 100%; 
-            max-width: 500px; 
-            padding: 20px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
+        .bg-glow {
+            position: absolute; top: -100px; left: 50%;
+            transform: translateX(-50%);
+            width: 400px; height: 300px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1; filter: blur(50px);
         }
 
-        .btn-back { 
-            color: var(--text); 
-            text-decoration: none; 
-            background: var(--card); 
-            border: 1px solid var(--border); 
-            width: 45px; 
-            height: 45px; 
-            border-radius: 12px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            transition: 0.2s; 
+        .top-bar {
+            width: 100%; max-width: 600px;
+            padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            z-index: 1;
         }
-        .btn-back:active { transform: scale(0.95); }
 
-        .container { width: 90%; max-width: 500px; }
-        
-        .header-page { text-align: center; margin: 10px 0 25px; }
-        .header-page i { color: var(--accent); font-size: 2rem; margin-bottom: 10px; display: inline-block; background: var(--inner-bg); padding: 15px; border-radius: 20px; box-shadow: 0 0 0 1px var(--border); }
-        .header-page h1 { margin: 0; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; }
+        .btn-back {
+            color: var(--text-muted); text-decoration: none;
+            background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            width: 45px; height: 45px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s; font-size: 1.1rem;
+        }
+        .btn-back:hover { background: var(--glass-hover); color: var(--text-main); border-color: rgba(255,255,255,0.2); }
+        .btn-back:active { transform: scale(0.92); }
 
-        .res-display { 
-            background: var(--inner-bg); 
-            border: 2px solid var(--border); 
-            border-radius: 30px; 
-            padding: 40px 10px; 
-            margin-bottom: 25px; 
-            text-align: center; 
-            transition: 0.3s ease;
-        }
-        
-        .res-main { font-size: 3.5rem; font-weight: bold; margin: 0; font-family: monospace; color: var(--accent); }
-        .res-unit { color: var(--dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; font-weight: bold; }
+        .container { width: 90%; max-width: 960px; z-index: 1; }
 
-        .control-group { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
-        
-        .section-label { 
-            color: var(--accent); 
-            font-size: 0.7rem; 
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
-            margin-bottom: 15px; 
-            display: flex; 
-            align-items: center; 
-            border-left: 3px solid var(--accent); 
-            padding-left: 10px; 
-            font-weight: bold; 
+        .header-page { text-align: center; margin: 10px 0 20px; }
+        .header-page i {
+            color: var(--accent); font-size: 1.8rem; margin-bottom: 12px;
+            display: inline-block; background: rgba(0,0,0,0.3);
+            padding: 15px; border-radius: 18px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 0 20px var(--accent-glow);
         }
-        
-        label { display: block; color: var(--dim); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 8px; font-weight: bold; }
-        
-        input[type="number"] { 
-            width: 100%; 
-            background: var(--inner-bg); 
-            border: 1px solid var(--border); 
-            color: white; 
-            padding: 15px; 
-            border-radius: 12px; 
-            font-size: 1.2rem; 
-            text-align: center; 
-            outline: none; 
-            box-sizing: border-box; 
-        }
-        
-        input[type="range"] { width: 100%; accent-color: var(--accent); margin-top: 10px; background: transparent; }
+        .header-page h1 { margin: 0; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
 
-        .fine-tune { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-top: 15px; }
-        
-        .btn-tune { 
-            background: var(--inner-bg); 
-            border: 1px solid var(--border); 
-            color: white; 
-            padding: 12px 5px; 
-            border-radius: 10px; 
-            font-size: 0.75rem; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: 0.2s; 
+        /* ── Display Principal ── */
+        .main-display {
+            background: var(--glass-bg); backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 22px 20px;
+            margin-bottom: 16px;
+            position: relative; overflow: hidden;
         }
-        .btn-tune:active { transform: scale(0.95); border-color: var(--dim); }
-        
-        .btn-auto { 
-            width: 100%; 
-            padding: 22px; 
-            border-radius: 20px; 
-            border: 2px solid var(--accent); 
-            background: transparent; 
-            color: var(--accent); 
-            font-size: 1rem; 
-            font-weight: bold; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 10px; 
-            transition: 0.2s;
+        .main-display::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.6;
         }
-        .btn-auto:active { transform: scale(0.98); }
-        .btn-auto.active { background: var(--accent); color: #000; }
+
+        /* Resultado ms grande */
+        .res-ms-big {
+            font-size: 4rem; font-weight: 800;
+            color: var(--accent);
+            text-shadow: 0 0 25px var(--accent-glow);
+            line-height: 1; text-align: center;
+            letter-spacing: -1px;
+        }
+        .res-ms-unit {
+            text-align: center; color: var(--text-muted);
+            font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 2px; margin-top: 4px; margin-bottom: 18px;
+        }
+
+        /* Grid de samples */
+        .samples-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .sample-item {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px; padding: 12px 8px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        .sample-item:hover { border-color: rgba(255,85,0,0.3); }
+        .sample-item .s-rate {
+            font-size: 0.65rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 1px;
+            font-weight: 600; display: block; margin-bottom: 6px;
+        }
+        .sample-item .s-val {
+            font-size: 1.05rem; font-weight: 700;
+            color: var(--accent2);
+            text-shadow: 0 0 10px var(--accent2-glow);
+        }
+        .sample-item .s-unit {
+            font-size: 0.6rem; color: var(--text-muted);
+            font-weight: 600; margin-left: 2px;
+        }
+
+        /* ── Grid de colunas ── */
+        .content-grid { display: flex; flex-direction: column; gap: 14px; }
+        @media (min-width: 768px) {
+            .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+        }
+
+        /* ── Cards de Controle ── */
+        .control-group {
+            background: var(--glass-bg); backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 20px;
+        }
+
+        .section-label {
+            color: var(--accent); font-size: 0.7rem;
+            text-transform: uppercase; letter-spacing: 2px;
+            margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+            border-left: 3px solid var(--accent); padding-left: 10px;
+            font-weight: 700;
+        }
+        .section-label.bpm-label { color: var(--accent2); border-left-color: var(--accent2); }
+
+        label {
+            display: block; color: var(--text-muted);
+            font-size: 0.72rem; text-transform: uppercase;
+            margin-bottom: 7px; font-weight: 600; letter-spacing: 1px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 12px; border-radius: 14px;
+            font-size: 1.1rem; text-align: center;
+            outline: none; font-family: 'Outfit', sans-serif;
+            font-weight: 600; transition: all 0.3s;
+        }
+        input[type="number"]:focus { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+
+        /* Fine tune buttons */
+        .fine-tune { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 7px; margin-top: 12px; }
+        .btn-tune {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
+            color: var(--text-main); padding: 10px 0;
+            border-radius: 10px; font-size: 0.75rem; font-weight: 600;
+            font-family: 'Outfit', sans-serif; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-tune:hover { background: var(--glass-hover); border-color: rgba(255,255,255,0.2); }
+        .btn-tune:active { transform: scale(0.92); background: var(--accent); color: #000; border-color: var(--accent); }
+
+        /* ── Temperatura Slider ── */
+        .temp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .temp-badge {
+            background: rgba(255,85,0,0.1);
+            border: 1px solid rgba(255,85,0,0.25);
+            border-radius: 20px; padding: 4px 12px;
+            font-size: 0.8rem; font-weight: 700; color: var(--accent);
+        }
+        .speed-of-sound {
+            text-align: center; margin-top: 12px;
+            font-size: 0.8rem; color: var(--text-muted);
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px; padding: 8px;
+            font-weight: 600; letter-spacing: 0.5px;
+        }
+        .speed-of-sound span { color: var(--accent); font-weight: 700; }
+
+        input[type="range"] {
+            -webkit-appearance: none; width: 100%; height: 5px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            outline: none; cursor: pointer; margin-top: 8px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 20px; height: 20px;
+            border-radius: 50%; background: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow); cursor: pointer;
+            transition: transform 0.15s;
+        }
+        input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.3); }
+
+        /* ── BPM Section ── */
+        .bpm-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+        input[type="number"].bpm-input:focus { border-color: var(--accent2); box-shadow: 0 0 15px var(--accent2-glow); }
+
+        .subdiv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 4px; }
+        .btn-subdiv {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
+            color: var(--text-muted); padding: 10px 4px;
+            border-radius: 12px; font-size: 0.7rem; font-weight: 700;
+            font-family: 'Outfit', sans-serif; cursor: pointer; transition: all 0.2s;
+            text-align: center; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .btn-subdiv:hover { background: var(--glass-hover); border-color: rgba(0,210,255,0.3); }
+        .btn-subdiv.active {
+            background: rgba(0,210,255,0.1); border-color: var(--accent2);
+            color: var(--accent2); box-shadow: 0 0 12px var(--accent2-glow);
+        }
+        .btn-subdiv:active { transform: scale(0.93); }
+
+        .bpm-result {
+            margin-top: 14px; padding: 12px;
+            background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
+            border-radius: 12px; text-align: center;
+        }
+        .bpm-result .bpm-ms {
+            font-size: 1.6rem; font-weight: 800;
+            color: var(--accent2); text-shadow: 0 0 12px var(--accent2-glow);
+        }
+        .bpm-result .bpm-desc {
+            font-size: 0.72rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-top: 4px; font-weight: 600;
+        }
+        .bpm-use-btn {
+            width: 100%; margin-top: 10px;
+            background: transparent; border: 1px solid var(--accent2);
+            color: var(--accent2); padding: 10px;
+            border-radius: 12px; font-size: 0.8rem; font-weight: 700;
+            font-family: 'Outfit', sans-serif; cursor: pointer; transition: all 0.2s;
+            text-transform: uppercase; letter-spacing: 1px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .bpm-use-btn:hover { background: rgba(0,210,255,0.1); }
+        .bpm-use-btn:active { transform: scale(0.96); }
     </style>
 </head>
 <body>
+    <div class="bg-glow"></div>
+
     <div class="top-bar">
         <a href="index.html" class="btn-back"><i class="fas fa-chevron-left"></i></a>
-        <div style="width: 45px;"></div> </div>
+        <div style="width: 45px;"></div>
+    </div>
 
     <div class="container">
         <div class="header-page">
@@ -151,51 +273,172 @@
             <h1>Delay / TA</h1>
         </div>
 
-        <div id="display-card" class="res-display">
-            <div class="res-main" id="res-ms">0.00</div>
-            <div class="res-unit">ms (Milissegundos)</div>
-        </div>
+        <!-- ── Display Principal ── -->
+        <div class="main-display">
+            <div class="res-ms-big" id="res-ms">2.91</div>
+            <div class="res-ms-unit">Milissegundos (ms)</div>
 
-        <div class="control-group">
-            <span class="section-label">Ajuste Manual</span>
-            <label>Metros (m)</label>
-            <input type="number" id="dist" value="1.00" step="0.01" oninput="calcularManual()">
-            <div class="fine-tune">
-                <button class="btn-tune" onclick="ajustar(-0.1)">-10cm</button>
-                <button class="btn-tune" onclick="ajustar(-0.01)">-1cm</button>
-                <button class="btn-tune" onclick="ajustar(0.01)">+1cm</button>
-                <button class="btn-tune" onclick="ajustar(0.1)">+10cm</button>
+            <div class="samples-grid">
+                <div class="sample-item">
+                    <span class="s-rate">44.1 kHz</span>
+                    <span class="s-val" id="s-441">--</span>
+                    <span class="s-unit">smp</span>
+                </div>
+                <div class="sample-item">
+                    <span class="s-rate">48 kHz</span>
+                    <span class="s-val" id="s-48">--</span>
+                    <span class="s-unit">smp</span>
+                </div>
+                <div class="sample-item">
+                    <span class="s-rate">96 kHz</span>
+                    <span class="s-val" id="s-96">--</span>
+                    <span class="s-unit">smp</span>
+                </div>
             </div>
         </div>
 
-        <div class="control-group">
-            <span class="section-label">Ambiente</span>
-            <label>Temperatura: <span id="temp-val" style="color: var(--accent);">25</span>°C</label>
-            <input type="range" id="temp" min="0" max="50" value="25" oninput="calcularManual()">
+        <div class="content-grid">
+
+            <!-- ── Coluna Esquerda: Manual + Temp ── -->
+            <div style="display:flex; flex-direction:column; gap:14px;">
+
+                <div class="control-group">
+                    <span class="section-label"><i class="fas fa-ruler"></i> Ajuste Manual</span>
+                    <label>Distância (metros)</label>
+                    <input type="number" id="dist" value="1.00" step="0.01" oninput="calcular()">
+                    <div class="fine-tune">
+                        <button class="btn-tune" onclick="ajustar(-0.1)">−10cm</button>
+                        <button class="btn-tune" onclick="ajustar(-0.01)">−1cm</button>
+                        <button class="btn-tune" onclick="ajustar(0.01)">+1cm</button>
+                        <button class="btn-tune" onclick="ajustar(0.1)">+10cm</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <span class="section-label"><i class="fas fa-thermometer-half"></i> Ambiente</span>
+                    <div class="temp-header">
+                        <label style="margin-bottom:0;">Temperatura</label>
+                        <span class="temp-badge" id="temp-badge">25°C</span>
+                    </div>
+                    <input type="range" id="temp" min="0" max="50" value="25" oninput="calcular()">
+                    <div class="speed-of-sound">
+                        Velocidade do Som: <span id="sound-speed">346.4</span> m/s
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ── Coluna Direita: BPM ── -->
+            <div class="control-group">
+                <span class="section-label bpm-label"><i class="fas fa-music"></i> BPM Calculator</span>
+
+                <div class="bpm-row">
+                    <div>
+                        <label>BPM</label>
+                        <input type="number" id="bpm-val" class="bpm-input" value="120" min="20" max="300" oninput="calcBPM()">
+                    </div>
+                    <div>
+                        <label>Subdivisão</label>
+                        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:10px;">→ Escolha abaixo</div>
+                    </div>
+                </div>
+
+                <label>Tipo de Nota</label>
+                <div class="subdiv-grid">
+                    <button class="btn-subdiv" data-mult="4"      onclick="setSubdiv(this)">Redonda<br><small>4/4</small></button>
+                    <button class="btn-subdiv" data-mult="2"      onclick="setSubdiv(this)">Mínima<br><small>1/2</small></button>
+                    <button class="btn-subdiv active" data-mult="1" onclick="setSubdiv(this)">Negra<br><small>1/4</small></button>
+                    <button class="btn-subdiv" data-mult="0.5"    onclick="setSubdiv(this)">Colcheia<br><small>1/8</small></button>
+                    <button class="btn-subdiv" data-mult="0.25"   onclick="setSubdiv(this)">Semícolcheia<br><small>1/16</small></button>
+                    <button class="btn-subdiv" data-mult="0.333"  onclick="setSubdiv(this)">Terça<br><small>1/3</small></button>
+                </div>
+
+                <div class="bpm-result">
+                    <div class="bpm-ms" id="bpm-ms">500.0 ms</div>
+                    <div class="bpm-desc" id="bpm-desc">Negra @ 120 BPM</div>
+                </div>
+
+                <button class="bpm-use-btn" onclick="usarBPM()">
+                    <i class="fas fa-arrow-up"></i> Usar como Delay Manual
+                </button>
+            </div>
+
         </div>
     </div>
 
     <script>
-        let audioCtx;
-        function calcularManual() {
+        let subdivMult = 1; // padrão: negra
+
+        // ─── Calcular delay por distância ─────────────────────────────────────
+        function calcular() {
             const dist = parseFloat(document.getElementById('dist').value) || 0;
             const temp = parseFloat(document.getElementById('temp').value);
-            document.getElementById('temp-val').innerText = temp;
-            let v = 331.4 + (0.6 * temp);
-            let delay = (dist / v) * 1000;
-            document.getElementById('res-ms').innerText = delay.toFixed(2);
+
+            document.getElementById('temp-badge').textContent = temp + '°C';
+
+            const v = 331.4 + (0.6 * temp);
+            document.getElementById('sound-speed').textContent = v.toFixed(1);
+
+            const delayMs = (dist / v) * 1000;
+            document.getElementById('res-ms').textContent = delayMs.toFixed(2);
+
+            // Samples
+            document.getElementById('s-441').textContent = Math.round(delayMs * 44.1);
+            document.getElementById('s-48').textContent  = Math.round(delayMs * 48);
+            document.getElementById('s-96').textContent  = Math.round(delayMs * 96);
         }
+
         function ajustar(val) {
             const input = document.getElementById('dist');
-            input.value = (parseFloat(input.value) + val).toFixed(2);
-            calcularManual();
+            input.value = Math.max(0, parseFloat(input.value) + val).toFixed(2);
+            calcular();
         }
-        function toggleAutoMeasure() {
-            alert("Iniciando medição... Aproxime do falante.");
-            // Lógica de áudio aqui (como construído anteriormente)
+
+        // ─── BPM Calculator ────────────────────────────────────────────────────
+        function setSubdiv(btn) {
+            document.querySelectorAll('.btn-subdiv').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            subdivMult = parseFloat(btn.dataset.mult);
+            calcBPM();
         }
-        calcularManual();
-        
+
+        function calcBPM() {
+            const bpm = parseFloat(document.getElementById('bpm-val').value) || 120;
+            // 1 negra = 60000ms / BPM
+            const negra = 60000 / bpm;
+            const ms = negra * subdivMult;
+
+            document.getElementById('bpm-ms').textContent = ms.toFixed(1) + ' ms';
+
+            // Label descritivo
+            const activeBtn = document.querySelector('.btn-subdiv.active');
+            const noteName = activeBtn ? activeBtn.childNodes[0].textContent.trim() : 'Negra';
+            document.getElementById('bpm-desc').textContent = `${noteName} @ ${bpm} BPM`;
+        }
+
+        // Transfere o valor BPM → campo de distância (usando velocidade atual do som)
+        function usarBPM() {
+            const bpm = parseFloat(document.getElementById('bpm-val').value) || 120;
+            const negra = 60000 / bpm;
+            const ms = negra * subdivMult;
+
+            const temp = parseFloat(document.getElementById('temp').value);
+            const v = 331.4 + (0.6 * temp);
+
+            // ms → metros
+            const dist = (ms / 1000) * v;
+            document.getElementById('dist').value = dist.toFixed(2);
+            calcular();
+
+            // Flash visual
+            const btn = document.querySelector('.bpm-use-btn');
+            btn.style.background = 'rgba(0,210,255,0.25)';
+            setTimeout(() => btn.style.background = '', 400);
+        }
+
+        // ─── Init ─────────────────────────────────────────────────────────────
+        calcular();
+        calcBPM();
     </script>
 </body>
 </html>
