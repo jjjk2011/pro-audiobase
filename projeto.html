@@ -2,100 +2,332 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projeto Sistema - AudioBase Pro | Série/Paralelo Integrado</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Projeto Sistema Avançado - AudioBase Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { 
-            --bg: #0a0e14; --card: #161b22; --text: #fff; --dim: #8b949e; --border: #30363d; 
-            --accent: #00d2ff; --purple: #a370f7; --success: #44ff44; --danger: #ff4d4d; --warning: #ffcc00;
-            --orange: #ff9500;
+        :root {
+            --bg-base: #09090b;
+            --bg-gradient: radial-gradient(circle at top, #13131a 0%, #09090b 100%);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-hover: rgba(255, 255, 255, 0.06);
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            
+            --accent: #00d2ff;
+            --accent-glow: rgba(0, 210, 255, 0.25);
+            --purple: #b042ff; 
+            --purple-glow: rgba(176, 66, 255, 0.25);
+            
+            --success: #39ff14; 
+            --danger: #ff4d4d; 
+            --warning: #ffcc00;
         }
-        * { box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        .top-bar { width: 100%; padding: 20px; display: flex; align-items: center; justify-content: space-between; }
-        .btn-back { color: var(--text); text-decoration: none; background: var(--card); border: 1px solid var(--border); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .btn-back:hover { border-color: var(--accent); }
+        body { 
+            background: var(--bg-base);
+            background-image: var(--bg-gradient);
+            color: var(--text-main); 
+            font-family: 'Outfit', system-ui, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding-bottom: 50px; 
+            overflow-x: hidden;
+        }
 
-        .container { width: 90%; max-width: 650px; }
-        .header-page { text-align: center; margin: 10px 0 25px; }
-        .header-page i { color: var(--accent); font-size: 2rem; margin-bottom: 10px; }
-        .header-page h1 { margin: 0; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; }
+        .bg-glow {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 300px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: -1;
+            filter: blur(50px);
+        }
 
-        /* Cards de Resultados */
+        .top-bar { 
+            width: 100%; 
+            max-width: 650px; 
+            padding: 20px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            z-index: 1;
+        }
+
+        .btn-back { 
+            color: var(--text-muted); 
+            text-decoration: none; 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 14px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.3s; 
+            font-size: 1.1rem;
+        }
+        .btn-back:hover { background: var(--glass-hover); color: var(--text-main); border-color: rgba(255,255,255,0.2); }
+        .btn-back:active { transform: scale(0.92); }
+
+        .container { width: 95%; max-width: 1200px; z-index: 1; }
+        
+        .content-grid { display: flex; flex-direction: column; gap: 0; }
+        @media (min-width: 900px) {
+            .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
+            .left-panel { display: flex; flex-direction: column; }
+            .right-panel { display: flex; flex-direction: column; position: sticky; top: 20px; }
+        }
+        
+        .header-page { text-align: center; margin: 10px 0 20px; }
+        .header-page i { 
+            color: var(--accent); 
+            font-size: 1.8rem; 
+            margin-bottom: 12px; 
+            display: inline-block; 
+            background: rgba(0,0,0,0.3); 
+            padding: 15px; 
+            border-radius: 18px; 
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .header-page h1 { margin: 0; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+        .header-page span { font-size: 0.75rem; color: var(--text-muted); font-weight: 300; letter-spacing: 1px; }
+
         .results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .res-item { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 15px 5px; text-align: center; transition: 0.2s; }
-        .res-item.highlight { border-color: var(--accent); box-shadow: 0 0 20px rgba(0,210,255,0.3); }
-        .res-item .lab { color: var(--dim); font-size: 0.55rem; text-transform: uppercase; display: block; margin-bottom: 8px; letter-spacing: 1px; }
-        .res-item .val { color: var(--accent); font-size: 1.2rem; font-weight: bold; }
+        .res-item { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); 
+            border-radius: 16px; 
+            padding: 15px 5px; 
+            text-align: center; 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            position: relative;
+            overflow: hidden;
+        }
+        .res-item::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
 
-        /* Seções */
-        .control-group { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 18px; }
-        .group-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; padding-left: 12px; }
+        .res-item .lab { color: var(--text-muted); font-size: 0.6rem; text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 1px; font-weight: 600; }
+        .res-item .val { color: var(--text-main); font-size: 1.1rem; font-weight: 700; }
+        .res-item.highlight .val { color: var(--accent); font-size: 1.25rem; text-shadow: 0 0 10px var(--accent-glow); }
+
+        .control-group { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); 
+            border-radius: 20px; 
+            padding: 20px; 
+            margin-bottom: 15px; 
+            transition: all 0.3s;
+        }
+        
+        .control-group.sp-group { border: 1px solid rgba(0, 210, 255, 0.3); box-shadow: 0 0 30px rgba(0, 210, 255, 0.05); }
+        .control-group.amp-group { border: 1px solid rgba(176, 66, 255, 0.3); box-shadow: 0 0 30px rgba(176, 66, 255, 0.05); }
+        .control-group.cable-group { border: 1px solid rgba(255, 204, 0, 0.3); box-shadow: 0 0 30px rgba(255, 204, 0, 0.05); }
+        
+        .group-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; padding-left: 10px; font-weight: 700; }
         .group-title.amp { color: var(--purple); border-left: 3px solid var(--purple); }
         .group-title.sp { color: var(--accent); border-left: 3px solid var(--accent); }
+        .group-title.cable { color: var(--warning); border-left: 3px solid var(--warning); }
         
+        .bridge-badge { background: var(--purple); color: #fff; font-size: 0.6rem; padding: 3px 10px; border-radius: 20px; font-weight: bold; display: none; box-shadow: 0 0 10px var(--purple-glow); letter-spacing: 1px;}
+
         .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
         .row.triple { grid-template-columns: 1fr 1fr 1fr; }
-        label { display: block; color: var(--dim); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
-        select, input { width: 100%; background: #0d1117; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 10px; font-size: 0.9rem; outline: none; transition: 0.2s; }
-        select:focus, input:focus { border-color: var(--accent); }
+        @media (max-width: 500px) { .row.triple { grid-template-columns: 1fr 1fr; } }
         
-        .bridge-badge { background: var(--purple); color: #000; font-size: 0.6rem; padding: 3px 10px; border-radius: 20px; font-weight: bold; display: none; }
-
-        /* Painel de Status Integrado */
-        .status-panel { 
-            background: #11151c; border: 2px solid var(--border); border-radius: 25px; padding: 25px; 
-            transition: all 0.3s ease; margin-top: 5px;
-        }
-        .status-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
-        .status-icon { font-size: 1.8rem; }
-        .status-text { flex: 1; }
-        .status-title { font-size: 1rem; font-weight: bold; margin-bottom: 4px; }
-        .status-subtitle { color: var(--dim); font-size: 0.8rem; }
+        label { display: block; color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 6px; font-weight: 600; letter-spacing: 1px; }
         
-        .compatibility-bar { 
-            height: 8px; background: #1e2530; border-radius: 10px; margin: 15px 0; overflow: hidden;
+        select, input { 
+            width: 100%; 
+            background: rgba(0, 0, 0, 0.4); 
+            border: 1px solid var(--glass-border); 
+            color: var(--text-main); 
+            padding: 12px 14px; 
+            border-radius: 12px; 
+            font-size: 0.95rem; 
+            outline: none; 
+            transition: all 0.3s; 
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
         }
-        .compatibility-fill { 
-            height: 100%; border-radius: 10px; transition: width 0.5s ease, background 0.3s; 
-        }
-        
-        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
-        .detail-item { 
-            background: #0a0f16; padding: 12px; border-radius: 12px; text-align: center; 
-            border: 1px solid #1e2630;
-        }
-        .detail-item .d-label { font-size: 0.6rem; color: var(--dim); text-transform: uppercase; }
-        .detail-item .d-value { font-size: 1.1rem; font-weight: bold; margin-top: 4px; }
-        .d-value.good { color: var(--success); }
-        .d-value.warn { color: var(--warning); }
-        .d-value.bad { color: var(--danger); }
-
-        /* Botões */
-        .btn-sync { 
-            background: linear-gradient(135deg, var(--accent), #0099cc); color: #000; 
-            border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; 
-            cursor: pointer; width: 100%; font-size: 0.9rem; transition: 0.2s; margin-top: 10px;
-        }
-        .btn-sync:hover { opacity: 0.85; transform: translateY(-1px); }
+        select:focus, input:focus { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
         
         .config-summary { 
-            background: #0f1923; padding: 12px 15px; border-radius: 12px; 
-            font-family: 'Courier New', monospace; font-size: 0.85rem; 
-            border: 1px solid #2a3a4a; margin: 10px 0;
+            background: rgba(0,0,0,0.4); 
+            padding: 14px; 
+            border-radius: 12px; 
+            font-family: 'Outfit', monospace; 
+            font-size: 0.8rem; 
+            border: 1px solid var(--glass-border); 
+            margin: 12px 0;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .config-summary b { color: var(--text-main); }
+
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .detail-item { 
+            background: rgba(0,0,0,0.3); 
+            padding: 12px; 
+            border-radius: 14px; 
+            text-align: center; 
+            border: 1px solid var(--glass-border);
+        }
+        .detail-item .d-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600;}
+        .detail-item .d-value { font-size: 1.1rem; font-weight: 700; margin-top: 5px; }
+        
+        .d-value.good { color: var(--success); text-shadow: 0 0 10px rgba(57, 255, 20, 0.3); }
+        .d-value.warn { color: var(--warning); text-shadow: 0 0 10px rgba(255, 204, 0, 0.3); }
+        
+        .cable-results { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px; }
+        .c-res { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; text-align: center; border: 1px solid var(--glass-border); }
+        .c-res .c-lab { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px; font-weight: 600;}
+        .c-res .c-val { font-size: 1.1rem; font-weight: 700; color: var(--warning); text-shadow: 0 0 10px rgba(255,204,0,0.3);}
+
+        .analysis-card { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border); 
+            border-radius: 24px; 
+            padding: 22px; 
+            transition: all 0.4s ease; 
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .status-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+        .status-icon { font-size: 1.8rem; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
+        .status-text { flex: 1; }
+        .status-title { font-size: 1rem; font-weight: 800; margin-bottom: 3px; letter-spacing: 1px; }
+        .status-subtitle { color: var(--text-muted); font-size: 0.8rem; font-weight: 300;}
+        
+        .compatibility-bar { 
+            height: 8px; background: rgba(0,0,0,0.5); border-radius: 10px; margin: 15px 0; overflow: hidden;
+            border: 1px solid var(--glass-border);
+        }
+        .compatibility-fill { 
+            height: 100%; width: 0%; background: var(--success); transition: all 1s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        #recomendacao-final {
+            margin-top: 15px; 
+            padding: 15px; 
+            background: rgba(0,0,0,0.4); 
+            border-radius: 14px; 
+            font-size: 0.85rem; 
+            line-height: 1.5;
+            border: 1px solid var(--glass-border);
+            font-weight: 300;
+            color: var(--text-muted);
         }
 
-        @media (max-width: 500px) {
-            .row.triple { grid-template-columns: 1fr 1fr; }
+        /* ── Validação ── */
+        .field-error { border-color: var(--danger) !important; box-shadow: 0 0 12px rgba(255,77,77,0.3) !important; }
+        .error-msg { font-size:0.7rem; color:var(--danger); margin-top:5px; display:none; font-weight:600; }
+        .error-msg.show { display:block; }
+
+        /* ── Tooltip ── */
+        .with-tip { position:relative; display:inline-flex; align-items:center; gap:6px; cursor:help; }
+        .tip-icon { color:var(--text-muted); font-size:0.75rem; opacity:0.6; transition:opacity 0.2s; }
+        .with-tip:hover .tip-icon { opacity:1; }
+        .tip-box {
+            display:none; position:absolute; bottom:calc(100% + 8px); left:0;
+            background:#1a1a1f; border:1px solid var(--glass-border);
+            border-radius:10px; padding:8px 12px;
+            font-size:0.72rem; color:var(--text-muted); font-weight:400;
+            white-space:nowrap; z-index:100;
+            box-shadow:0 8px 24px rgba(0,0,0,0.6);
         }
+        .with-tip:hover .tip-box { display:block; }
+
+        /* ── Botão Copiar ── */
+        .btn-copy {
+            width:100%; margin-top:14px;
+            background:transparent; border:1px solid var(--glass-border);
+            color:var(--text-muted); padding:12px;
+            border-radius:14px; font-size:0.8rem; font-weight:700;
+            font-family:'Outfit',sans-serif; cursor:pointer; transition:all 0.2s;
+            display:flex; align-items:center; justify-content:center; gap:8px;
+            text-transform:uppercase; letter-spacing:1px;
+        }
+        .btn-copy:hover { background:var(--glass-hover); border-color:rgba(255,255,255,0.2); color:var(--text-main); }
+        .btn-copy.copied { border-color:var(--success); color:var(--success); background:rgba(57,255,20,0.07); }
+        .btn-copy:active { transform:scale(0.96); }
+
+        /* Diagram Graphics */
+        .diagram-container { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin-top: 15px; 
+            padding: 20px; 
+            background: rgba(0,0,0,0.4); 
+            border-radius: 16px; 
+            border: 1px solid var(--glass-border);
+            min-height: 120px;
+            overflow-x: auto;
+        }
+
+        .spk { 
+            width: 30px; height: 42px; 
+            background: #111; 
+            border: 1px solid #444; 
+            border-radius: 6px; 
+            position: relative;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 2;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+        }
+        .spk::before, .spk::after {
+            content: ''; position: absolute; border-radius: 50%; border: 1px solid #333; background: #050505;
+        }
+        .spk::before { width: 18px; height: 18px; top: 14px;} 
+        .spk::after { width: 8px; height: 8px; top: 4px; } 
+
+        .diag-parallel { display: flex; gap: 12px; position: relative; padding-top: 15px;}
+        .diag-parallel .bus-line {
+            position: absolute; top: 0; left: 15px; right: 15px; height: 3px;
+            background: linear-gradient(to bottom, #ff4d4d 50%, #00d2ff 50%);
+            z-index: 1;
+            box-shadow: 0 0 5px rgba(255,255,255,0.2);
+        }
+        .diag-parallel .spk-drop {
+            width: 3px; height: 15px; background: linear-gradient(to right, #ff4d4d 50%, #00d2ff 50%);
+            margin: 0 auto;
+        }
+        .diag-col { display: flex; flex-direction: column; align-items: center; }
+
+        .diag-series { display: flex; gap: 10px; align-items: center; position: relative; }
+        .diag-series .wire { height: 3px; width: 10px; background: #b042ff; z-index: 1; }
+        .diag-series .main-wire { position: absolute; height: 3px; width: 15px; }
+        .diag-series .wire-in { left: -15px; background: #ff4d4d; }
+        .diag-series .wire-out { right: -15px; background: #00d2ff; }
+
     </style>
 </head>
 <body>
 
+    <div class="bg-glow"></div>
+
     <div class="top-bar">
-        <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i></a>
+        <a href="index.html" class="btn-back"><i class="fas fa-chevron-left"></i></a>
         <div style="width: 45px;"></div>
     </div>
 
@@ -103,371 +335,409 @@
         <div class="header-page">
             <i class="fas fa-microchip"></i>
             <h1>Projeto Sistema</h1>
-            <span style="font-size:0.7rem; color: var(--dim);">Calculadora Série/Paralelo + Amplificador</span>
+            <span>Headroom & Casamento de Impedância</span>
         </div>
         
-        <!-- Cards de Resultados Rápidos -->
         <div class="results-grid">
-            <div class="res-item" id="card-imp">
-                <span class="lab"><i class="fas fa-ohm"></i> Impedância</span>
-                <span class="val" id="res-imp">0.0Ω</span>
-            </div>
-            <div class="res-item highlight" id="card-vrms">
-                <span class="lab"><i class="fas fa-bolt"></i> Vrms Limiter</span>
+            <div class="res-item"><span class="lab">Imp. Final</span><span class="val" id="res-imp">0.0Ω</span></div>
+            <div class="res-item highlight">
+                <span class="lab">
+                    <span class="with-tip">Vrms Limiter
+                        <i class="fas fa-question-circle tip-icon"></i>
+                        <span class="tip-box">Configure este valor no processador. Protege os falantes contra excesso de potência.</span>
+                    </span>
+                </span>
                 <span class="val" id="res-vrms">0.0V</span>
             </div>
-            <div class="res-item" id="card-pot">
-                <span class="lab"><i class="fas fa-power-off"></i> Pot. Canal</span>
+            <div class="res-item">
+                <span class="lab">
+                    <span class="with-tip">W/Canal Real
+                        <i class="fas fa-question-circle tip-icon"></i>
+                        <span class="tip-box">Potência efetiva entregue após perdas no cabeamento.</span>
+                    </span>
+                </span>
                 <span class="val" id="res-pot">0W</span>
             </div>
         </div>
 
-        <!-- CALCULADORA SÉRIE/PARALELO (PRINCIPAL) -->
-        <div class="control-group" style="border: 2px solid var(--accent);">
-            <span class="group-title sp">
-                <i class="fas fa-project-diagram"></i> CONFIGURADOR DE CARGA (SÉRIE/PARALELO)
-            </span>
-            
-            <div class="row triple">
-                <div>
-                    <label><i class="fas fa-boxes"></i> Qtd. Drivers</label>
-                    <input type="number" id="sp-qtd" value="16" min="1" oninput="atualizarTudo()">
-                </div>
-                <div>
-                    <label><i class="fas fa-ohm"></i> Ω Unitário</label>
-                    <select id="sp-ohm" onchange="atualizarTudo()">
-                        <option value="2">2 Ω</option>
-                        <option value="4">4 Ω</option>
-                        <option value="8" selected>8 Ω</option>
-                    </select>
-                </div>
-                <div>
-                    <label><i class="fas fa-bolt"></i> Watts RMS (cada)</label>
-                    <input type="number" id="sp-watt" value="200" min="1" oninput="atualizarTudo()">
-                </div>
-            </div>
-
+        <div class="content-grid">
+            <div class="left-panel">
+                <div class="control-group amp-group">
+            <span class="group-title amp">1. Amplificador <span id="bridge-badge" class="bridge-badge">MODO PONTE</span></span>
             <div class="row">
-                <div>
-                    <label><i class="fas fa-arrow-right"></i> Em SÉRIE (drivers por grupo)</label>
-                    <input type="number" id="sp-serie" value="2" min="1" oninput="atualizarTudo()">
-                </div>
-                <div>
-                    <label><i class="fas fa-arrow-down"></i> Grupos em PARALELO</label>
-                    <input type="number" id="sp-paralelo" value="8" min="1" oninput="atualizarTudo()">
-                </div>
-            </div>
-
-            <div class="config-summary" id="config-resumo">
-                ⚡ 2 em série (16Ω) → 8 grupos paralelo = 16 drivers | Total: 2.0Ω / 3200W
-            </div>
-
-            <!-- Resultados rápidos da configuração -->
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <span class="d-label">Impedância Final</span>
-                    <div class="d-value good" id="sp-imp-final">2.0 Ω</div>
-                </div>
-                <div class="detail-item">
-                    <span class="d-label">Potência Total</span>
-                    <div class="d-value" id="sp-pot-final" style="color: var(--accent);">3200 W</div>
-                </div>
-                <div class="detail-item">
-                    <span class="d-label">Vrms Necessário</span>
-                    <div class="d-value" id="sp-vrms-est" style="color: var(--accent);">80.0 V</div>
-                </div>
-                <div class="detail-item">
-                    <span class="d-label">Pot. por Driver</span>
-                    <div class="d-value" id="sp-pot-driver" style="color: #ccc;">200 W</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- CONFIGURAÇÃO DO AMPLIFICADOR -->
-        <div class="control-group">
-            <span class="group-title amp">
-                <i class="fas fa-broadcast-tower"></i> AMPLIFICADOR 
-                <span id="bridge-badge" class="bridge-badge">MODO PONTE</span>
-            </span>
-            <div class="row">
-                <div>
-                    <label>Canais</label>
-                    <select id="a-ch" onchange="checkMono(); atualizarTudo();">
-                        <option value="1">1 Canal (Mono)</option>
-                        <option value="2">2 Canais</option>
-                        <option value="4" selected>4 Canais</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Modo Saída</label>
-                    <select id="a-mo" onchange="atualizarTudo()">
+                <div class="col">
+                    <label>Modo de Saída</label>
+                    <select id="a-mo" onchange="calc()">
                         <option value="st">STEREO</option>
                         <option value="br">BRIDGE</option>
                     </select>
                 </div>
-            </div>
-            <div class="row">
-                <div>
-                    <label>Ω Mínimo Canal</label>
-                    <select id="a-min" onchange="atualizarTudo()">
+                <div class="col">
+                    <label>Ω Mínimo (Canal)</label>
+                    <select id="a-min" onchange="calc()">
                         <option value="0.5">0.5 Ω</option>
                         <option value="1">1.0 Ω</option>
                         <option value="2" selected>2.0 Ω</option>
                         <option value="4">4.0 Ω</option>
+                        <option value="8">8.0 Ω</option>
                     </select>
                 </div>
-                <div>
-                    <label>Watts RMS / Canal</label>
-                    <input type="number" id="a-w" value="3000" oninput="atualizarTudo()">
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label>Watts por Canal (RMS)</label>
+                    <input type="number" id="a-w" value="1200" oninput="calc()">
                 </div>
             </div>
         </div>
 
-        <!-- PAINEL DE ANÁLISE INTEGRADA -->
-        <div class="status-panel" id="status-panel">
-            <div class="status-header">
-                <div class="status-icon" id="status-icon">🔍</div>
-                <div class="status-text">
-                    <div class="status-title" id="status-title">ANALISANDO SISTEMA</div>
-                    <div class="status-subtitle" id="status-subtitle">Configure os parâmetros acima</div>
+        <div class="control-group sp-group">
+            <span class="group-title sp">2. Carga por Saída</span>
+            <div class="row triple">
+                <div class="col">
+                    <label>Falantes</label>
+                    <input type="number" id="q" value="2" min="1" max="100" oninput="calc()">
+                </div>
+                <div class="col">
+                    <label>Ohms</label>
+                    <select id="f-i" onchange="calc()">
+                        <option value="2">2 Ω</option>
+                        <option value="4" selected>4 Ω</option>
+                        <option value="8">8 Ω</option>
+                        <option value="16">16 Ω</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label>Watts</label>
+                    <input type="number" id="f-w" value="500" oninput="calc()">
                 </div>
             </div>
-            
-            <!-- Barra de compatibilidade -->
-            <div class="compatibility-bar">
-                <div class="compatibility-fill" id="comp-bar" style="width: 0%; background: var(--dim);"></div>
-            </div>
-            
-            <div class="detail-grid" id="analise-detalhes">
-                <div class="detail-item">
-                    <span class="d-label">Headroom</span>
-                    <div class="d-value" id="d-headroom">--</div>
+            <div class="row">
+                <div class="col">
+                    <label>Esquema de Ligação</label>
+                    <select id="t" onchange="toggleMisto(); calc()">
+                        <option value="p">Todos em Paralelo</option>
+                        <option value="s">Todos em Série</option>
+                        <option value="m">Misto (Série/Paralelo)</option>
+                    </select>
                 </div>
-                <div class="detail-item">
-                    <span class="d-label">Status Impedância</span>
-                    <div class="d-value" id="d-imp-status">--</div>
-                </div>
-                <div class="detail-item">
-                    <span class="d-label">Risco Clipping</span>
-                    <div class="d-value" id="d-clip-risk">--</div>
-                </div>
-                <div class="detail-item">
-                    <span class="d-label">Proteção Térmica</span>
-                    <div class="d-value" id="d-thermal">--</div>
+                <div class="col" id="col-misto" style="display: none;">
+                    <label>Falantes p/ Linha (Série)</label>
+                    <input type="number" id="q-s" value="2" min="1" oninput="validateMisto(); calc()">
                 </div>
             </div>
-            
-            <div id="recomendacao-final" style="margin-top: 15px; padding: 15px; background: #0a0f16; border-radius: 12px; font-size: 0.85rem; line-height: 1.5;">
-                <i class="fas fa-lightbulb" style="color: var(--warning);"></i> 
-                <span id="recomendacao-texto">Aguardando configuração...</span>
+
+            <div class="detail-grid">
+                <div class="detail-item"><div class="d-label">Imp. S/ Cabos</div><div class="d-value" id="det-imp">0.0Ω</div></div>
+                <div class="detail-item">
+                    <div class="d-label">
+                        <span class="with-tip">Headroom Real
+                            <i class="fas fa-question-circle tip-icon"></i>
+                            <span class="tip-box">Ideal: 1.0x–2.5x. Abaixo = clipping. Acima = risco mecânico.</span>
+                        </span>
+                    </div>
+                    <div class="d-value" id="det-head">0.0x</div>
+                </div>
             </div>
+            <p class="error-msg" id="err-misto">⚠ Falantes/linha não pode exceder o total.</p>
         </div>
-    </div>
+
+        <div class="control-group cable-group">
+            <span class="group-title cable">3. Cabeamento e Perdas</span>
+            <div class="row">
+                <div class="col">
+                    <label>Comprimento (Metros)</label>
+                    <input type="number" id="c-m" value="10" min="1" oninput="calc()">
+                </div>
+                <div class="col">
+                    <label>Bitola (mm²)</label>
+                    <select id="c-mm" onchange="calc()">
+                        <option value="1.0">1.0 mm²</option>
+                        <option value="1.5">1.5 mm²</option>
+                        <option value="2.5" selected>2.5 mm²</option>
+                        <option value="4.0">4.0 mm²</option>
+                        <option value="6.0">6.0 mm²</option>
+                    </select>
+                </div>
+            </div>
+            <div class="cable-results">
+                <div class="c-res"><span class="c-lab">Resistência</span><span class="c-val" id="res-c-ohm">0.00Ω</span></div>
+                <div class="c-res"><span class="c-lab">Perda Total</span><span class="c-val" id="res-c-loss">0.0%</span></div>
+            </div>
+            </div>
+        </div> <!-- End left-panel -->
+
+        <div class="right-panel">
+            <div id="status-card" class="analysis-card">
+            <div class="status-header">
+                <div class="status-icon" id="status-icon"><i class="fas fa-circle-notch fa-spin"></i></div>
+                <div class="status-text">
+                    <div class="status-title" id="status-title">Calculando...</div>
+                    <div class="status-subtitle" id="status-subtitle">Analisando setup</div>
+                </div>
+            </div>
+            
+            <div class="status-desc" id="status-desc">Preencha os dados do amplificador e carga.</div>
+            
+            <div class="compatibility-bar">
+                <div class="compatibility-fill" id="comp-fill"></div>
+            </div>
+
+            <div id="recomendacao-final"></div>
+            <button class="btn-copy" id="btn-copy" onclick="copiarRelatorio()">
+                <i class="fas fa-copy"></i> Copiar Relatório
+            </button>
+        </div>
+
+            <div class="analysis-card" style="margin-bottom: 20px;">
+                <div class="status-title"><i class="fas fa-project-diagram" style="color:var(--accent);"></i> ESQUEMA DE LIGAÇÃO</div>
+                <div id="diagram-container" class="diagram-container"></div>
+            </div>
+        </div> <!-- End right-panel -->
+
+    </div> <!-- End content-grid -->
 
     <script>
-        // =============== FUNÇÃO PRINCIPAL UNIFICADA ===============
-        function atualizarTudo() {
-            // ---------- COLETA DADOS DA CARGA (SÉRIE/PARALELO) ----------
-            const qtdTotal = parseInt(document.getElementById('sp-qtd').value) || 16;
-            const ohmUnit = parseFloat(document.getElementById('sp-ohm').value);
-            const wattUnit = parseFloat(document.getElementById('sp-watt').value) || 200;
-            let serie = parseInt(document.getElementById('sp-serie').value) || 2;
-            let paralelo = parseInt(document.getElementById('sp-paralelo').value) || 8;
+        function toggleMisto() {
+            const t = document.getElementById('t').value;
+            document.getElementById('col-misto').style.display = (t === 'm') ? 'block' : 'none';
+            validateMisto();
+        }
 
-            // Auto-correção para manter total coerente
-            if (serie * paralelo !== qtdTotal) {
-                if (serie > 0 && qtdTotal % serie === 0) {
-                    paralelo = qtdTotal / serie;
-                } else if (paralelo > 0 && qtdTotal % paralelo === 0) {
-                    serie = qtdTotal / paralelo;
-                } else {
-                    // Ajuste aproximado
-                    paralelo = Math.round(qtdTotal / serie);
-                    if (paralelo < 1) paralelo = 1;
-                }
-                document.getElementById('sp-serie').value = serie;
-                document.getElementById('sp-paralelo').value = paralelo;
+        function validateMisto() {
+            const q  = parseInt(document.getElementById('q').value) || 1;
+            const qs = parseInt(document.getElementById('q-s').value) || 1;
+            const inp = document.getElementById('q-s');
+            const err = document.getElementById('err-misto');
+            if (qs > q) {
+                inp.classList.add('field-error');
+                err.classList.add('show');
+                return false;
             }
+            inp.classList.remove('field-error');
+            err.classList.remove('show');
+            return true;
+        }
 
-            const totalDrivers = serie * paralelo;
-            const impGrupo = ohmUnit * serie;      // Impedância de cada grupo em série
-            const impFinal = impGrupo / paralelo;    // Impedância total (grupos em paralelo)
-            const potTotal = wattUnit * totalDrivers;
-            const vrmsCarga = Math.sqrt(potTotal * impFinal);
+        function validateInputs() {
+            let ok = true;
+            const checks = [
+                { id: 'a-w',  min: 1,   msg: 'Watts do amp deve ser > 0' },
+                { id: 'q',    min: 1,   msg: 'Qtd de falantes deve ser ≥ 1' },
+                { id: 'f-w',  min: 1,   msg: 'Watts do falante deve ser > 0' },
+                { id: 'c-m',  min: 0.1, msg: 'Comprimento deve ser > 0' },
+            ];
+            checks.forEach(c => {
+                const el  = document.getElementById(c.id);
+                const val = parseFloat(el.value);
+                if (!val || val < c.min) {
+                    el.classList.add('field-error');
+                    ok = false;
+                } else {
+                    el.classList.remove('field-error');
+                }
+            });
+            if (document.getElementById('t').value === 'm') ok = validateMisto() && ok;
+            return ok;
+        }
 
-            // Atualiza UI da calculadora - CORRIGIDO: usando textContent em vez de innerHTML
-            document.getElementById('sp-imp-final').textContent = impFinal.toFixed(2) + ' Ω';
-            document.getElementById('sp-pot-final').textContent = potTotal + ' W';
-            document.getElementById('sp-vrms-est').textContent = vrmsCarga.toFixed(1) + ' V';
-            document.getElementById('sp-pot-driver').textContent = wattUnit + ' W';
-            
-            document.getElementById('config-resumo').innerHTML = 
-                '⚡ ' + serie + ' em série (' + impGrupo.toFixed(1) + 'Ω) → ' + paralelo + ' grupos paralelo = ' + totalDrivers + ' drivers | Total: <b>' + impFinal.toFixed(2) + 'Ω</b> / <b>' + potTotal + 'W</b>';
+        function copiarRelatorio() {
+            const imp   = document.getElementById('res-imp').textContent;
+            const vrms  = document.getElementById('res-vrms').textContent;
+            const pot   = document.getElementById('res-pot').textContent;
+            const head  = document.getElementById('det-head').textContent;
+            const loss  = document.getElementById('res-c-loss').textContent;
+            const title = document.getElementById('status-title').textContent.trim();
+            const reco  = document.getElementById('recomendacao-final').innerText.trim();
 
-            // ---------- COLETA DADOS AMPLIFICADOR ----------
-            const aw = parseFloat(document.getElementById('a-w').value) || 3000;
+            const txt = [
+                '=== AudioBase Pro — Relatório de Projeto ===',
+                '',
+                `Status: ${title}`,
+                `Impedância Final: ${imp}`,
+                `Vrms Limiter: ${vrms}`,
+                `Potência Real/Canal: ${pot}`,
+                `Headroom: ${head}`,
+                `Perda no Cabo: ${loss}`,
+                '',
+                `Recomendação: ${reco}`,
+                '',
+                `Gerado em: ${new Date().toLocaleString('pt-BR')}`,
+            ].join('\n');
+
+            navigator.clipboard.writeText(txt).then(() => {
+                const btn = document.getElementById('btn-copy');
+                btn.classList.add('copied');
+                btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = '<i class="fas fa-copy"></i> Copiar Relatório';
+                }, 2000);
+            });
+        }
+
+        function calc() {
+            if (!validateInputs()) return;
+            const aw = parseFloat(document.getElementById('a-w').value) || 0;
             const am = document.getElementById('a-mo').value;
             const amin = parseFloat(document.getElementById('a-min').value);
             
-            // Cálculos do amplificador
-            const ampPotDisp = (am === 'br') ? aw * 2 : aw;  // Potência disponível por canal/ponte
-            const ampMinReal = (am === 'br') ? amin * 2 : amin; // Impedância mínima real
-            const headroom = ampPotDisp / potTotal;
+            const q = parseInt(document.getElementById('q').value) || 1;
+            const fi = parseFloat(document.getElementById('f-i').value);
+            const fw = parseFloat(document.getElementById('f-w').value) || 0;
+            const t = document.getElementById('t').value;
+            const qs = parseInt(document.getElementById('q-s').value) || 1;
             
-            // Badge bridge
-            document.getElementById('bridge-badge').style.display = (am === 'br') ? 'inline-block' : 'none';
+            const cm = parseFloat(document.getElementById('c-m').value) || 0;
+            const cmm = parseFloat(document.getElementById('c-mm').value) || 1;
 
-            // ---------- ATUALIZA CARDS SUPERIORES ----------
-            document.getElementById('res-imp').textContent = impFinal.toFixed(2) + 'Ω';
-            document.getElementById('res-vrms').textContent = vrmsCarga.toFixed(1) + 'V';
-            document.getElementById('res-pot').textContent = ampPotDisp + 'W';
-
-            // Destacar card de impedância se estiver no limite
-            const cardImp = document.getElementById('card-imp');
-            if (impFinal < ampMinReal) {
-                cardImp.style.borderColor = 'var(--danger)';
-                cardImp.style.boxShadow = '0 0 15px rgba(255,77,77,0.4)';
-            } else if (impFinal <= ampMinReal * 1.15) {
-                cardImp.style.borderColor = 'var(--warning)';
-                cardImp.style.boxShadow = '0 0 15px rgba(255,204,0,0.3)';
-            } else {
-                cardImp.style.borderColor = 'var(--border)';
-                cardImp.style.boxShadow = 'none';
+            // Impedância e Potência Bruta
+            let it = 0;
+            if (t === 'p') {
+                it = fi / q;
+            } else if (t === 's') {
+                it = fi * q;
+            } else if (t === 'm') {
+                // Clamp: falantes/linha nunca pode ser > total
+                const qsClamped = Math.min(qs, q);
+                document.getElementById('q-s').value = qsClamped;
+                const linhasParalelas = Math.max(1, q / qsClamped);
+                it = (fi * qsClamped) / linhasParalelas;
             }
 
-            // ---------- ANÁLISE COMPLETA ----------
-            const panel = document.getElementById('status-panel');
+            let pt = fw * q;
+            let vrms = Math.sqrt(pt * it);
+
+            // Perda de Cabo (Ida e Volta = x2)
+            // Resistividade do Cobre a 20°C: ~0.0172
+            let resCabo = (0.0172 * (cm * 2)) / cmm;
+            let totalImp = it + resCabo;
+            
+            let perdaPercent = (resCabo / totalImp) * 100;
+            
+            document.getElementById('res-c-ohm').innerText = resCabo.toFixed(2) + "Ω";
+            document.getElementById('res-c-loss').innerText = perdaPercent.toFixed(1) + "%";
+
+            if(perdaPercent > 10) {
+                document.getElementById('res-c-loss').style.color = "var(--danger)";
+                document.getElementById('res-c-loss').style.textShadow = "0 0 10px rgba(255,77,77,0.3)";
+            } else {
+                document.getElementById('res-c-loss').style.color = "var(--warning)";
+                document.getElementById('res-c-loss').style.textShadow = "0 0 10px rgba(255,204,0,0.3)";
+            }
+
+            let ampPotDisp = (am === 'br') ? aw * 2 : aw;
+            let ampMinReal = (am === 'br') ? amin * 2 : amin;
+            
+            let potEntregue = ampPotDisp * (1 - (perdaPercent/100));
+            let headroomReal = potEntregue / pt;
+            
+            const badge = document.getElementById('bridge-badge');
+            badge.style.display = (am === 'br') ? 'inline-block' : 'none';
+
+            document.getElementById('res-imp').innerText = totalImp.toFixed(2) + "Ω";
+            document.getElementById('res-vrms').innerText = vrms.toFixed(1) + "V";
+            document.getElementById('res-pot').innerText = potEntregue.toFixed(0) + "W";
+
+            document.getElementById('det-imp').innerText = it.toFixed(2) + "Ω";
+            document.getElementById('det-head').innerText = headroomReal.toFixed(1) + "x";
+
+            const hEl = document.getElementById('det-head');
+            hEl.className = "d-value " + (headroomReal >= 1 && headroomReal <= 2.5 ? "good" : "warn");
+
+            const card = document.getElementById('status-card');
             const icon = document.getElementById('status-icon');
             const title = document.getElementById('status-title');
             const subtitle = document.getElementById('status-subtitle');
-            const bar = document.getElementById('comp-bar');
-            const recomendacao = document.getElementById('recomendacao-texto');
+            const desc = document.getElementById('status-desc');
+            const fill = document.getElementById('comp-fill');
+            const reco = document.getElementById('recomendacao-final');
             
-            // Elementos de detalhe
-            const dHeadroom = document.getElementById('d-headroom');
-            const dImpStatus = document.getElementById('d-imp-status');
-            const dClipRisk = document.getElementById('d-clip-risk');
-            const dThermal = document.getElementById('d-thermal');
+            let sColor = ""; let sTitle = ""; let sSub = ""; let sIcon = ""; let sDesc = ""; let wBar = "";
+            let recoTxt = "";
 
-            let nivelCompat = 0; // 0-100%
-            let corBarra = '';
-            let statusGeral = '';
-            let icone = '';
-            let corBorda = '';
-            let textoRecomendacao = '';
-
-            // --- DIAGNÓSTICO 1: IMPEDÂNCIA ---
-            if (impFinal < ampMinReal) {
-                nivelCompat = 10;
-                corBarra = 'var(--danger)';
-                statusGeral = 'PERIGO: IMPEDÂNCIA MUITO BAIXA';
-                icone = '🔴';
-                corBorda = 'var(--danger)';
-                dImpStatus.textContent = 'ABAIXO DO MÍNIMO';
-                dImpStatus.className = 'd-value bad';
-                dThermal.textContent = 'ALTO RISCO';
-                dThermal.className = 'd-value bad';
-                textoRecomendacao = '🚫 <b>IMPEDÂNCIA CRÍTICA:</b> Sua carga de <b>' + impFinal.toFixed(2) + 'Ω</b> está abaixo do mínimo de <b>' + ampMinReal + 'Ω</b> que o amplificador suporta. Isso causará <b>superaquecimento</b>, acionamento do circuito de proteção ou queima dos transistores de saída. <br><br>🔧 <b>Solução:</b> Aumente a impedância final. Ex: use mais drivers em série (ex: ' + Math.ceil(ampMinReal * paralelo / ohmUnit) + ' em série) ou reduza grupos paralelo.';
-            } else if (impFinal <= ampMinReal * 1.2) {
-                nivelCompat = 50;
-                corBarra = 'var(--warning)';
-                dImpStatus.textContent = 'NO LIMITE';
-                dImpStatus.className = 'd-value warn';
-                dThermal.textContent = 'ATENÇÃO';
-                dThermal.className = 'd-value warn';
-                if (statusGeral === '') statusGeral = 'ATENÇÃO: IMPEDÂNCIA NO LIMITE';
-                if (icone === '') icone = '🟡';
-                if (corBorda === '') corBorda = 'var(--warning)';
-                textoRecomendacao = '⚠️ <b>IMPEDÂNCIA LIMÍTROFE:</b> ' + impFinal.toFixed(2) + 'Ω está muito próximo do mínimo de ' + ampMinReal + 'Ω. O amplificador funcionará, mas com <b>maior aquecimento</b> e menor margem de segurança. Evite uso prolongado em potência máxima.';
-            } else {
-                dImpStatus.textContent = 'OK ✓';
-                dImpStatus.className = 'd-value good';
-                dThermal.textContent = 'NORMAL';
-                dThermal.className = 'd-value good';
-                if (nivelCompat < 70) nivelCompat = 70;
+            if (totalImp < ampMinReal) {
+                sColor = "var(--danger)"; sTitle = "PERIGO: CURTO-CIRCUITO"; sSub = "Impedância Baixa";
+                sIcon = '<i class="fas fa-radiation"></i>'; wBar = "10%";
+                sDesc = `A carga total (${totalImp.toFixed(2)}Ω) está abaixo do mínimo do amplificador (${ampMinReal}Ω). Proteção será ativada ou transistores queimarão.`;
+                recoTxt = "Refaça a ligação para Série ou use menos falantes neste canal.";
+            } 
+            else if (headroomReal < 1) {
+                sColor = "var(--warning)"; sTitle = "ALERTA: CLIPPING"; sSub = "Potência Insuficiente";
+                sIcon = '<i class="fas fa-exclamation-triangle"></i>'; wBar = "35%";
+                sDesc = `O amp está enviando apenas ${(headroomReal * 100).toFixed(0)}% do que a caixa precisa (já contando as perdas do cabo). Risco severo de distorção harmônica.`;
+                recoTxt = "Diminua os falantes por canal ou use um amplificador mais forte.";
+            }
+            else if (headroomReal > 2.5) {
+                sColor = "var(--warning)"; sTitle = "ALERTA: EXCESSO DE FORÇA"; sSub = "Risco Mecânico";
+                sIcon = '<i class="fas fa-exclamation-circle"></i>'; wBar = "60%";
+                sDesc = `Headroom muito alto (${headroomReal.toFixed(1)}x). Se o limiter falhar, o cone do falante será rasgado.`;
+                recoTxt = `Ajuste obrigatório do Vrms Limiter em <b>${vrms.toFixed(1)}V</b> no processador!`;
+            }
+            else {
+                sColor = "var(--success)"; sTitle = "SISTEMA IDEAL"; sSub = "Casamento Perfeito";
+                sIcon = '<i class="fas fa-check-circle"></i>'; wBar = "100%";
+                sDesc = `Headroom de ${headroomReal.toFixed(1)}x garantirá som limpo e dinâmica total sem forçar os componentes.`;
+                recoTxt = `Sistema otimizado. Limiter Vrms ideal: <b>${vrms.toFixed(1)}V</b>.`;
             }
 
-            // --- DIAGNÓSTICO 2: HEADROOM / CLIPPING ---
-            if (headroom < 0.8) {
-                nivelCompat = Math.min(nivelCompat, 20);
-                corBarra = 'var(--danger)';
-                statusGeral = 'PERIGO: AMPLIFICADOR INSUFICIENTE';
-                icone = '🔴';
-                corBorda = 'var(--danger)';
-                dHeadroom.textContent = (headroom*100).toFixed(0) + '% (CLIPPING)';
-                dHeadroom.className = 'd-value bad';
-                dClipRisk.textContent = 'CRÍTICO';
-                dClipRisk.className = 'd-value bad';
-                textoRecomendacao = '🔴 <b>CLIPPING GARANTIDO:</b> O amplificador fornece apenas <b>' + (headroom*100).toFixed(0) + '%</b> da potência que os drivers precisam (' + potTotal + 'W). Ao tentar extrair mais volume, o sinal será <b>ceifado (onda quadrada)</b>, destruindo tweeters e drivers rapidamente. <br><br>🔧 <b>Solução:</b> Use amplificador mais potente ou reduza quantidade de drivers.';
-            } else if (headroom < 1.0) {
-                nivelCompat = Math.min(nivelCompat, 45);
-                corBarra = corBarra || 'var(--warning)';
-                if (statusGeral === '' || statusGeral.includes('IMPEDÂNCIA')) statusGeral = 'ATENÇÃO: POTÊNCIA NO LIMITE';
-                if (icone === '') icone = '🟡';
-                if (corBorda === '') corBorda = 'var(--warning)';
-                dHeadroom.textContent = (headroom*100).toFixed(0) + '% (AJUSTADO)';
-                dHeadroom.className = 'd-value warn';
-                dClipRisk.textContent = 'MODERADO';
-                dClipRisk.className = 'd-value warn';
-                textoRecomendacao = '⚠️ <b>HEADROOM BAIXO:</b> O amplificador entrega apenas <b>' + (headroom*100).toFixed(0) + '%</b> da potência total dos drivers. Haverá pouca margem para dinâmica. Evite forçar o volume além de 80% para prevenir distorção.';
-            } else if (headroom > 3.0) {
-                if (nivelCompat >= 70) nivelCompat = 75;
-                dHeadroom.textContent = headroom.toFixed(1) + 'x (EXCESSIVO)';
-                dHeadroom.className = 'd-value warn';
-                dClipRisk.textContent = 'BAIXO';
-                dClipRisk.className = 'd-value good';
-                if (corBorda === '') corBorda = 'var(--warning)';
-                if (statusGeral === '' || statusGeral.includes('IDEAL')) statusGeral = 'ATENÇÃO: EXCESSO DE POTÊNCIA';
-                textoRecomendacao = '⚡ <b>HEADROOM EXCESSIVO (' + headroom.toFixed(1) + 'x):</b> O amplificador é muito mais potente que os drivers. Risco de <b>danos mecânicos</b> (rasgar suspensão, bater bobina). O LIMITER em <b>' + vrmsCarga.toFixed(1) + 'V</b> é <b>OBRIGATÓRIO</b> para proteção.';
-            } else {
-                dHeadroom.textContent = headroom.toFixed(1) + 'x (IDEAL)';
-                dHeadroom.className = 'd-value good';
-                dClipRisk.textContent = 'BAIXO';
-                dClipRisk.className = 'd-value good';
-                if (nivelCompat >= 70) nivelCompat = 100;
-                if (statusGeral === '' || statusGeral.includes('ATENÇÃO')) statusGeral = '✅ SISTEMA COMPATÍVEL';
-                if (icone === '' || icone === '🟡') icone = '🟢';
-                if (corBorda === '' || corBorda === 'var(--warning)') corBorda = 'var(--success)';
-                textoRecomendacao = '✅ <b>CONFIGURAÇÃO EXCELENTE!</b> Headroom de <b>' + headroom.toFixed(1) + 'x</b> garante som limpo com dinâmica. Configure o Limiter do processador em <b>' + vrmsCarga.toFixed(1) + 'V RMS</b>. Impedância de <b>' + impFinal.toFixed(2) + 'Ω</b> está segura para o amplificador (mín. ' + ampMinReal + 'Ω).';
+            if (perdaPercent > 10) {
+                sDesc += `<br><br><b style="color:var(--danger)">Perda de Cabo Crítica:</b> Cuidado! ${perdaPercent.toFixed(1)}% da potência do amplificador está virando calor nos fios. Aumente a bitola!`;
             }
 
-            // Aplica valores finais
-            bar.style.width = nivelCompat + '%';
-            bar.style.background = corBarra || 'var(--success)';
-            panel.style.borderColor = corBorda;
-            icon.textContent = icone;
-            title.textContent = statusGeral;
-            subtitle.textContent = 'Carga: ' + impFinal.toFixed(2) + 'Ω / ' + potTotal + 'W | Amp: ' + ampPotDisp + 'W @ ' + ampMinReal + 'Ω mín.';
-            recomendacao.innerHTML = textoRecomendacao;
+            card.style.borderColor = sColor; card.style.boxShadow = `0 0 30px ${sColor}20`;
+            icon.style.color = sColor; icon.innerHTML = sIcon;
+            title.style.color = sColor; title.innerText = sTitle;
+            subtitle.innerText = sSub; desc.innerHTML = sDesc;
+            fill.style.width = wBar; fill.style.background = sColor;
+            reco.innerHTML = recoTxt;
+            
+            renderDiagram(q, t, qs);
         }
 
-        // =============== FUNÇÃO AUXILIAR ===============
-        function checkMono() {
-            const channels = document.getElementById('a-ch').value;
-            const modeSelect = document.getElementById('a-mo');
-            if (channels === "1") { 
-                modeSelect.value = "st"; 
-                modeSelect.disabled = true; 
-            } else { 
-                modeSelect.disabled = false; 
+        function renderDiagram(q, tipo, qs) {
+            const container = document.getElementById('diagram-container');
+            container.innerHTML = "";
+            let html = "";
+            
+            const maxQ = Math.min(q, 16);
+            const hidden = q > 16 ? `<div style="margin-top:10px; font-size: 0.7rem; color: #888;">+ ${q - 16} caixas ocultas no diagrama</div>` : "";
+
+            if (tipo === 'p') {
+                html += `<div class="diag-parallel"><div class="bus-line"></div>`;
+                for(let i=0; i<maxQ; i++) {
+                    html += `<div class="diag-col"><div class="spk-drop"></div><div class="spk"></div></div>`;
+                }
+                html += `</div>`;
+            } else if (tipo === 's') {
+                html += `<div class="diag-series"><div class="main-wire wire-in"></div>`;
+                for(let i=0; i<maxQ; i++) {
+                    html += `<div class="spk"></div>`;
+                    if (i < maxQ - 1) html += `<div class="wire"></div>`;
+                }
+                html += `<div class="main-wire wire-out"></div></div>`;
+            } else if (tipo === 'm') {
+                html += `<div style="display:flex; flex-direction:column; gap:20px; align-items:center; border-left:3px solid #ff4d4d; border-right:3px solid #00d2ff; padding: 0 15px; position:relative; margin-top: 10px;">`;
+                let caixasRestantes = maxQ;
+                while (caixasRestantes > 0) {
+                    let caixasNestaLinha = Math.min(caixasRestantes, qs);
+                    html += `<div class="diag-series">`;
+                    html += `<div class="main-wire" style="left:-15px; background:#ff4d4d;"></div>`;
+                    for(let i=0; i<caixasNestaLinha; i++) {
+                        html += `<div class="spk"></div>`;
+                        if(i < caixasNestaLinha - 1) html += `<div class="wire"></div>`;
+                    }
+                    html += `<div class="main-wire" style="right:-15px; background:#00d2ff;"></div>`;
+                    html += `</div>`;
+                    caixasRestantes -= caixasNestaLinha;
+                }
+                html += `</div>`;
             }
-            atualizarTudo();
+            
+            container.innerHTML = html + hidden;
         }
 
-        // =============== INICIALIZAÇÃO ===============
-        window.onload = function() {
-            checkMono();
-            atualizarTudo();
-            
-            // Adiciona listeners para sincronização automática dos inputs da calculadora
-            ['sp-serie', 'sp-paralelo', 'sp-qtd'].forEach(function(id) {
-                document.getElementById(id).addEventListener('input', atualizarTudo);
-            });
-        };
-
-        // Expor funções globalmente
-        window.atualizarTudo = atualizarTudo;
-        window.checkMono = checkMono;
+        calc();
     </script>
 </body>
 </html>
