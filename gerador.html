@@ -4,53 +4,164 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Gerador | AudioBase Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --bg: #0a0e14; --card: #161b22; --inner-bg: #0d1117; --border: #30363d;
-            --text: #ffffff; --dim: #8b949e; --accent: #44ff44;
+            --bg-base: #09090b;
+            --bg-gradient: radial-gradient(circle at top, #13131a 0%, #09090b 100%);
+            --glass-bg: rgba(255,255,255,0.03);
+            --glass-border: rgba(255,255,255,0.08);
+            --glass-hover: rgba(255,255,255,0.06);
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --accent: #39ff14;
+            --accent-glow: rgba(57,255,20,0.25);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 50px; }
-        
-        .top-bar { width: 100%; max-width: 500px; padding: 20px; display: flex; align-items: center; justify-content: space-between; }
-        .btn-back { color: var(--text); text-decoration: none; background: var(--card); border: 1px solid var(--border); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .btn-back:active { transform: scale(0.95); }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body {
+            background: var(--bg-base); background-image: var(--bg-gradient);
+            color: var(--text-main); font-family: 'Outfit', system-ui, sans-serif;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; padding-bottom: 60px; overflow-x: hidden;
+        }
+        .bg-glow {
+            position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+            width: 400px; height: 300px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            z-index: -1; filter: blur(50px);
+        }
+        .top-bar { width:100%; max-width:550px; padding:20px; display:flex; align-items:center; justify-content:space-between; z-index:1; }
+        .btn-back {
+            color:var(--text-muted); text-decoration:none;
+            background:var(--glass-bg); backdrop-filter:blur(10px);
+            border:1px solid var(--glass-border); width:45px; height:45px;
+            border-radius:14px; display:flex; align-items:center; justify-content:center;
+            transition:all 0.3s; font-size:1.1rem;
+        }
+        .btn-back:hover { background:var(--glass-hover); color:var(--text-main); }
+        .btn-back:active { transform:scale(0.92); }
 
-        .container { width: 90%; max-width: 450px; }
-        .header { text-align: center; margin-bottom: 25px; }
-        .header i { font-size: 2.2rem; color: var(--accent); margin-bottom: 10px; display: inline-block; background: var(--inner-bg); padding: 15px; border-radius: 20px; box-shadow: 0 0 0 1px var(--border); }
+        .container { width:90%; max-width:960px; z-index:1; }
 
-        /* Grid de Ruídos */
-        .noise-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .btn-noise { background: var(--card); border: 1px solid var(--border); color: white; padding: 25px 15px; border-radius: 1.5rem; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; font-size: 0.9rem; font-weight: bold; gap: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-noise i { font-size: 1.8rem; color: var(--dim); transition: 0.2s; }
-        
-        .btn-noise.active { border-color: var(--accent); background: var(--inner-bg); box-shadow: 0 0 15px rgba(68,255,68,0.1); }
-        .btn-noise.active i, .btn-noise.active span { color: var(--accent); }
-        .btn-noise:active { transform: scale(0.95); }
+        .header { text-align:center; margin-bottom:20px; }
+        .header i {
+            font-size:1.8rem; color:var(--accent); margin-bottom:12px;
+            display:inline-block; background:rgba(0,0,0,0.3);
+            padding:15px; border-radius:18px;
+            border:1px solid var(--glass-border); box-shadow:0 0 20px var(--accent-glow);
+        }
+        .header h1 { font-size:1.4rem; text-transform:uppercase; letter-spacing:2px; font-weight:700; }
 
-        .control-group { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; text-align: center; }
-        .section-title { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; font-weight: bold; display: block; margin-bottom: 15px; text-align: left; border-left: 3px solid var(--accent); padding-left: 8px; }
+        /* ── Canvas visualizer ── */
+        .viz-card {
+            background:var(--glass-bg); backdrop-filter:blur(16px);
+            border:1px solid var(--glass-border); border-radius:20px;
+            padding:16px; margin-bottom:14px; position:relative; overflow:hidden;
+        }
+        .viz-card::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:1px;
+            background:linear-gradient(90deg,transparent,var(--accent),transparent); opacity:0.5;
+        }
+        canvas { width:100%; height:80px; display:block; border-radius:12px; background:rgba(0,0,0,0.5); }
 
-        /* Grid Teste de Vias */
-        .vias-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 5px; }
-        .btn-via { background: var(--inner-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px 2px; text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-        .btn-via i { font-size: 1.3rem; color: var(--dim); transition: 0.2s; }
-        .btn-via .via-name { font-size: 0.65rem; font-weight: bold; text-transform: uppercase; color: white; transition: 0.2s; }
-        .btn-via .via-freq { font-size: 0.55rem; color: var(--dim); font-weight: bold; transition: 0.2s; }
-        
-        .btn-via.active { border-color: var(--accent); background: rgba(68, 255, 68, 0.05); box-shadow: 0 0 10px rgba(68, 255, 68, 0.1); }
-        .btn-via.active i, .btn-via.active .via-name, .btn-via.active .via-freq { color: var(--accent); }
-        .btn-via:active { transform: scale(0.95); }
+        /* ── Volume ── */
+        .vol-card {
+            background:var(--glass-bg); backdrop-filter:blur(16px);
+            border:1px solid var(--glass-border); border-radius:20px;
+            padding:18px; margin-bottom:14px;
+        }
+        .vol-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+        .vol-label { font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1.5px; font-weight:600; }
+        .vol-value {
+            font-size:0.9rem; font-weight:700; color:var(--accent);
+            background:rgba(57,255,20,0.1); border:1px solid rgba(57,255,20,0.25);
+            border-radius:8px; padding:2px 10px;
+        }
+        /* VU bar */
+        .vu-bar { height:6px; background:rgba(255,255,255,0.08); border-radius:10px; margin-bottom:10px; overflow:hidden; }
+        .vu-fill { height:100%; width:60%; border-radius:10px; transition:width 0.15s; background:linear-gradient(90deg,#39ff14,#ffcc00,#ff4d4d); }
 
-        /* Controle Deslizante Senoide */
-        .freq-display { font-size: 2.5rem; font-weight: bold; color: var(--accent); display: block; margin: 10px 0; }
-        input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; margin-top: 10px; }
-        .btn-sine { width: 100%; margin-top: 20px; flex-direction: row; justify-content: center; padding: 15px; border-radius: 1rem; }
+        input[type="range"] {
+            -webkit-appearance:none; width:100%; height:5px;
+            border-radius:10px; background:rgba(255,255,255,0.1);
+            outline:none; cursor:pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance:none; width:20px; height:20px;
+            border-radius:50%; background:var(--accent);
+            box-shadow:0 0 8px var(--accent-glow); cursor:pointer; transition:transform 0.15s;
+        }
+        input[type="range"]::-webkit-slider-thumb:active { transform:scale(1.3); }
+
+        /* ── Grid layout ── */
+        .content-grid { display:flex; flex-direction:column; gap:14px; }
+        @media(min-width:768px) {
+            .content-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; }
+        }
+
+        .control-group {
+            background:var(--glass-bg); backdrop-filter:blur(16px);
+            border:1px solid var(--glass-border); border-radius:20px; padding:18px;
+        }
+        .section-title {
+            font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;
+            letter-spacing:2px; font-weight:600; display:block; margin-bottom:14px;
+            border-left:3px solid var(--accent); padding-left:10px;
+        }
+
+        /* Noise buttons */
+        .noise-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .btn-noise {
+            background:var(--glass-bg); backdrop-filter:blur(16px);
+            border:1px solid var(--glass-border); color:var(--text-main);
+            padding:18px 10px; border-radius:18px; cursor:pointer;
+            transition:all 0.3s; display:flex; flex-direction:column;
+            align-items:center; font-size:0.85rem; font-weight:700;
+            font-family:'Outfit',sans-serif; gap:8px;
+            text-transform:uppercase; letter-spacing:1.5px;
+        }
+        .btn-noise i { font-size:1.8rem; color:var(--text-muted); transition:all 0.3s; }
+        .btn-noise span { color:var(--text-muted); transition:all 0.3s; }
+        .btn-noise:hover { background:var(--glass-hover); transform:translateY(-2px); }
+        .btn-noise.active { border-color:var(--accent); background:rgba(57,255,20,0.05); box-shadow:0 0 20px rgba(57,255,20,0.2); }
+        .btn-noise.active i, .btn-noise.active span { color:var(--accent); text-shadow:0 0 15px var(--accent-glow); }
+        .btn-noise:active { transform:scale(0.96); }
+
+        /* Via buttons */
+        .vias-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+        .btn-via {
+            background:rgba(0,0,0,0.3); border:1px solid var(--glass-border);
+            border-radius:14px; padding:12px 4px; cursor:pointer; transition:all 0.3s;
+            display:flex; flex-direction:column; align-items:center; gap:5px;
+        }
+        .btn-via i { font-size:1.2rem; color:var(--text-muted); transition:all 0.3s; }
+        .btn-via .via-name { font-size:0.65rem; font-weight:700; text-transform:uppercase; color:var(--text-main); letter-spacing:1px; }
+        .btn-via .via-freq { font-size:0.55rem; color:var(--text-muted); font-weight:600; }
+        .btn-via:hover { background:var(--glass-hover); }
+        .btn-via.active { border-color:var(--accent); background:rgba(57,255,20,0.08); box-shadow:0 0 15px var(--accent-glow); }
+        .btn-via.active i, .btn-via.active .via-name, .btn-via.active .via-freq { color:var(--accent); }
+        .btn-via:active { transform:scale(0.92); }
+
+        /* Freq display */
+        .freq-display { font-size:2.5rem; font-weight:800; color:var(--accent); display:block; margin:10px 0; text-shadow:0 0 20px var(--accent-glow); text-align:center; }
+
+        .btn-sine {
+            width:100%; margin-top:16px;
+            background:transparent; border:2px solid var(--accent);
+            color:var(--accent); padding:14px; border-radius:14px;
+            font-size:0.9rem; font-weight:700; font-family:'Outfit',sans-serif;
+            cursor:pointer; transition:all 0.2s;
+            display:flex; align-items:center; justify-content:center; gap:10px;
+            text-transform:uppercase; letter-spacing:1px;
+        }
+        .btn-sine:hover { background:rgba(57,255,20,0.1); }
+        .btn-sine.active { background:var(--accent); color:#000; box-shadow:0 0 20px var(--accent-glow); }
+        .btn-sine:active { transform:scale(0.96); }
     </style>
 </head>
 <body>
+    <div class="bg-glow"></div>
     <div class="top-bar">
         <a href="index.html" class="btn-back"><i class="fas fa-chevron-left"></i></a>
         <div style="width:45px"></div>
@@ -59,192 +170,232 @@
     <div class="container">
         <div class="header">
             <i class="fas fa-wave-square"></i>
+            <h1>Gerador de Sinais</h1>
         </div>
 
-        <div class="noise-grid">
-            <button class="btn-noise" id="btn-pink" onclick="toggleNoise('pink')">
-                <i class="fas fa-water"></i>
-                <span>Ruído Rosa</span>
-            </button>
-            <button class="btn-noise" id="btn-white" onclick="toggleNoise('white')">
-                <i class="fas fa-snowflake"></i>
-                <span>Ruído Branco</span>
-            </button>
+        <!-- Visualizador -->
+        <div class="viz-card">
+            <canvas id="vizCanvas" width="512" height="80"></canvas>
         </div>
 
-        <div class="control-group">
-            <span class="section-title">Teste Rápido por Via</span>
-            <div class="vias-grid">
-                <div class="btn-via" id="btn-grave" onclick="toggleVia(62, 'btn-grave')">
-                    <i class="fas fa-cube"></i>
-                    <span class="via-name">Grave</span>
-                    <span class="via-freq">62 Hz</span>
+        <!-- Volume -->
+        <div class="vol-card">
+            <div class="vol-header">
+                <span class="vol-label"><i class="fas fa-volume-up"></i> Volume de Saída</span>
+                <span class="vol-value" id="vol-display">60%</span>
+            </div>
+            <div class="vu-bar"><div class="vu-fill" id="vu-fill" style="width:60%"></div></div>
+            <input type="range" id="vol-slider" min="0" max="100" value="60" oninput="updateVolume()">
+        </div>
+
+        <div class="content-grid">
+
+            <!-- Esquerda: Ruídos + Vias -->
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                <div class="control-group">
+                    <span class="section-title">Ruído de Referência</span>
+                    <div class="noise-grid">
+                        <button class="btn-noise" id="btn-pink" onclick="toggleNoise('pink')">
+                            <i class="fas fa-water"></i><span>Ruído Rosa</span>
+                        </button>
+                        <button class="btn-noise" id="btn-white" onclick="toggleNoise('white')">
+                            <i class="fas fa-snowflake"></i><span>Ruído Branco</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="btn-via" id="btn-medio" onclick="toggleVia(500, 'btn-medio')">
-                    <i class="fas fa-layer-group"></i>
-                    <span class="via-name">Médio</span>
-                    <span class="via-freq">500 Hz</span>
-                </div>
-                <div class="btn-via" id="btn-drive" onclick="toggleVia(4000, 'btn-drive')">
-                    <i class="fas fa-bullhorn"></i>
-                    <span class="via-name">Drive</span>
-                    <span class="via-freq">4 kHz</span>
-                </div>
-                <div class="btn-via" id="btn-tw" onclick="toggleVia(10000, 'btn-tw')">
-                    <i class="fas fa-bolt"></i>
-                    <span class="via-name">Tweeter</span>
-                    <span class="via-freq">10 kHz</span>
+
+                <div class="control-group">
+                    <span class="section-title">Teste Rápido por Via</span>
+                    <div class="vias-grid">
+                        <div class="btn-via" id="btn-grave" onclick="toggleVia(62,'btn-grave')">
+                            <i class="fas fa-cube"></i>
+                            <span class="via-name">Grave</span>
+                            <span class="via-freq">62 Hz</span>
+                        </div>
+                        <div class="btn-via" id="btn-medio" onclick="toggleVia(500,'btn-medio')">
+                            <i class="fas fa-layer-group"></i>
+                            <span class="via-name">Médio</span>
+                            <span class="via-freq">500 Hz</span>
+                        </div>
+                        <div class="btn-via" id="btn-drive" onclick="toggleVia(4000,'btn-drive')">
+                            <i class="fas fa-bullhorn"></i>
+                            <span class="via-name">Drive</span>
+                            <span class="via-freq">4 kHz</span>
+                        </div>
+                        <div class="btn-via" id="btn-tw" onclick="toggleVia(10000,'btn-tw')">
+                            <i class="fas fa-bolt"></i>
+                            <span class="via-name">Tweeter</span>
+                            <span class="via-freq">10 kHz</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="control-group">
-            <span class="section-title">Frequência Manual (Varredura)</span>
-            <span class="freq-display" id="f-val">440Hz</span>
-            <input type="range" id="f-slider" min="20" max="1000" value="440" oninput="updateFreq()">
-            
-            <button class="btn-noise btn-sine" id="btn-sine" onclick="toggleSine()">
-                <i class="fas fa-podcast"></i>
-                <span id="sine-text">Ligar Senoide Manual</span>
-            </button>
+            <!-- Direita: Varredura Manual -->
+            <div class="control-group">
+                <span class="section-title">Frequência Manual (Varredura)</span>
+                <span class="freq-display" id="f-val">440 Hz</span>
+                <!-- Escala logarítmica: min=0, max=1000 → mapeado para 20–20000 Hz -->
+                <input type="range" id="f-slider" min="0" max="1000" value="507" oninput="updateFreq()">
+                <button class="btn-sine btn-noise" id="btn-sine" onclick="toggleSine()">
+                    <i class="fas fa-podcast"></i>
+                    <span id="sine-text">Ligar Senoide Manual</span>
+                </button>
+            </div>
+
         </div>
     </div>
 
     <script>
-        let audioCtx;
-        let masterGain;
-        let noiseNode = null;
-        let oscNode = null;
-        let activeSignal = null; // 'pink', 'white', 'sine'
-        let activeVia = null; // Armazena qual botão de via está ativo
+        // ─── Estado ────────────────────────────────────────────────────────────
+        let audioCtx, masterGain, analyserNode;
+        let noiseNode = null, oscNode = null;
+        let activeSignal = null, activeVia = null;
+        let animId;
 
+        // Canvas
+        const canvas = document.getElementById('vizCanvas');
+        const ctx    = canvas.getContext('2d');
+
+        // ─── Log scale helpers (20 Hz – 20000 Hz em 0–1000) ──────────────────
+        const LOG_MIN = Math.log10(20);
+        const LOG_MAX = Math.log10(20000);
+        function sliderToHz(v) { return Math.round(Math.pow(10, LOG_MIN + (v/1000)*(LOG_MAX-LOG_MIN))); }
+        function hzToSlider(hz) { return Math.round(((Math.log10(hz)-LOG_MIN)/(LOG_MAX-LOG_MIN))*1000); }
+
+        // ─── Audio Init ────────────────────────────────────────────────────────
         async function initAudio() {
             if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                audioCtx   = new (window.AudioContext||window.webkitAudioContext)();
                 masterGain = audioCtx.createGain();
-                masterGain.gain.value = 0.6; // Proteção: Volume em 60% para evitar sustos
-                masterGain.connect(audioCtx.destination);
+                analyserNode = audioCtx.createAnalyser();
+                analyserNode.fftSize = 2048;
+                masterGain.gain.value = 0.6;
+                masterGain.connect(analyserNode);
+                analyserNode.connect(audioCtx.destination);
+                drawLoop();
             }
-            if (audioCtx.state === 'suspended') {
-                await audioCtx.resume();
-            }
+            if (audioCtx.state === 'suspended') await audioCtx.resume();
         }
 
-        // Função para desligar qualquer som ativo
-        function stopAllSignals() {
+        // ─── Volume ────────────────────────────────────────────────────────────
+        function updateVolume() {
+            const pct = parseInt(document.getElementById('vol-slider').value);
+            document.getElementById('vol-display').textContent = pct + '%';
+            document.getElementById('vu-fill').style.width = pct + '%';
+            if (masterGain) masterGain.gain.value = pct / 100;
+        }
+
+        // ─── Parar tudo ───────────────────────────────────────────────────────
+        function stopAll() {
             if (noiseNode) { noiseNode.stop(); noiseNode.disconnect(); noiseNode = null; }
-            if (oscNode) { oscNode.stop(); oscNode.disconnect(); oscNode = null; }
-            
-            // Reseta todos os botões visuais
+            if (oscNode)   { oscNode.stop();   oscNode.disconnect();   oscNode   = null; }
             document.getElementById('btn-pink').classList.remove('active');
             document.getElementById('btn-white').classList.remove('active');
             document.getElementById('btn-sine').classList.remove('active');
-            document.getElementById('sine-text').innerText = "Ligar Senoide Manual";
+            document.getElementById('sine-text').textContent = 'Ligar Senoide Manual';
             document.querySelectorAll('.btn-via').forEach(b => b.classList.remove('active'));
-            
-            activeSignal = null;
-            activeVia = null;
+            activeSignal = null; activeVia = null;
         }
 
-        // --- TESTE DE VIAS RÁPIDO (Botões de Frequência Fixa) ---
+        // ─── Ruídos ───────────────────────────────────────────────────────────
+        function createWhiteBuffer() {
+            const n = audioCtx.sampleRate * 2;
+            const buf = audioCtx.createBuffer(1, n, audioCtx.sampleRate);
+            const d = buf.getChannelData(0);
+            for (let i=0;i<n;i++) d[i] = Math.random()*2-1;
+            return buf;
+        }
+        function createPinkBuffer() {
+            const n = audioCtx.sampleRate * 2;
+            const buf = audioCtx.createBuffer(1, n, audioCtx.sampleRate);
+            const d = buf.getChannelData(0);
+            let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+            for (let i=0;i<n;i++) {
+                let w = Math.random()*2-1;
+                b0=0.99886*b0+w*0.0555179; b1=0.99332*b1+w*0.0750759;
+                b2=0.96900*b2+w*0.1538520; b3=0.86650*b3+w*0.3104856;
+                b4=0.55000*b4+w*0.5329522; b5=-0.7616*b5-w*0.0168980;
+                d[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.11; b6=w*0.115926;
+            }
+            return buf;
+        }
+        async function toggleNoise(type) {
+            await initAudio();
+            if (activeSignal===type) { stopAll(); return; }
+            stopAll(); activeSignal = type;
+            const buf = type==='pink' ? createPinkBuffer() : createWhiteBuffer();
+            noiseNode = audioCtx.createBufferSource();
+            noiseNode.buffer = buf; noiseNode.loop = true;
+            noiseNode.connect(masterGain); noiseNode.start();
+            document.getElementById('btn-'+type).classList.add('active');
+        }
+
+        // ─── Vias ─────────────────────────────────────────────────────────────
         async function toggleVia(freq, btnId) {
             await initAudio();
-
-            // Se clicou no botão que já está tocando, ele apenas desliga
-            if (activeSignal === 'via' && activeVia === btnId) {
-                stopAllSignals();
-                return;
-            }
-
-            stopAllSignals();
-            activeSignal = 'via';
-            activeVia = btnId;
-
+            if (activeSignal==='via' && activeVia===btnId) { stopAll(); return; }
+            stopAll(); activeSignal='via'; activeVia=btnId;
             oscNode = audioCtx.createOscillator();
-            oscNode.type = 'sine';
-            oscNode.frequency.value = freq;
-            oscNode.connect(masterGain);
-            oscNode.start();
-
-            // Ativa visualmente o botão clicado
+            oscNode.type = 'sine'; oscNode.frequency.value = freq;
+            oscNode.connect(masterGain); oscNode.start();
             document.getElementById(btnId).classList.add('active');
         }
 
-        // --- GERADORES DE RUÍDO ---
-        function createWhiteNoiseBuffer() {
-            const bufferSize = audioCtx.sampleRate * 2;
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const output = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
-            return buffer;
-        }
-
-        function createPinkNoiseBuffer() {
-            const bufferSize = audioCtx.sampleRate * 2;
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const output = buffer.getChannelData(0);
-            let b0=0, b1=0, b2=0, b3=0, b4=0, b5=0, b6=0;
-            for (let i = 0; i < bufferSize; i++) {
-                let white = Math.random() * 2 - 1;
-                b0 = 0.99886 * b0 + white * 0.0555179;
-                b1 = 0.99332 * b1 + white * 0.0750759;
-                b2 = 0.96900 * b2 + white * 0.1538520;
-                b3 = 0.86650 * b3 + white * 0.3104856;
-                b4 = 0.55000 * b4 + white * 0.5329522;
-                b5 = -0.7616 * b5 - white * 0.0168980;
-                output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
-                output[i] *= 0.11;
-                b6 = white * 0.115926;
+        // ─── Senoide Manual ───────────────────────────────────────────────────
+        function updateFreq() {
+            const hz = sliderToHz(document.getElementById('f-slider').value);
+            document.getElementById('f-val').textContent = hz >= 1000 ? (hz/1000).toFixed(1)+'kHz' : hz+' Hz';
+            if (oscNode && activeSignal==='sine_manual') {
+                oscNode.frequency.setValueAtTime(hz, audioCtx.currentTime);
             }
-            return buffer;
         }
-
-        async function toggleNoise(type) {
-            await initAudio();
-            if (activeSignal === type) { stopAllSignals(); return; }
-            stopAllSignals();
-            activeSignal = type;
-
-            const buffer = type === 'pink' ? createPinkNoiseBuffer() : createWhiteNoiseBuffer();
-            noiseNode = audioCtx.createBufferSource();
-            noiseNode.buffer = buffer;
-            noiseNode.loop = true;
-            noiseNode.connect(masterGain);
-            noiseNode.start();
-
-            document.getElementById(`btn-${type}`).classList.add('active');
-        }
-
-        // --- SENOIDE MANUAL COM SLIDER ---
         async function toggleSine() {
             await initAudio();
-            if (activeSignal === 'sine_manual') { stopAllSignals(); return; }
-            
-            stopAllSignals();
-            activeSignal = 'sine_manual';
-
+            if (activeSignal==='sine_manual') { stopAll(); return; }
+            stopAll(); activeSignal='sine_manual';
+            const hz = sliderToHz(document.getElementById('f-slider').value);
             oscNode = audioCtx.createOscillator();
-            oscNode.type = 'sine';
-            oscNode.frequency.value = document.getElementById('f-slider').value;
-            oscNode.connect(masterGain);
-            oscNode.start();
-
+            oscNode.type='sine'; oscNode.frequency.value = hz;
+            oscNode.connect(masterGain); oscNode.start();
             document.getElementById('btn-sine').classList.add('active');
-            document.getElementById('sine-text').innerText = "Desligar Senoide";
+            document.getElementById('sine-text').textContent = 'Desligar Senoide';
         }
 
-        function updateFreq() {
-            const f = document.getElementById('f-slider').value;
-            if (f >= 1000) {
-                document.getElementById('f-val').innerText = (f / 1000).toFixed(1) + "kHz";
-            } else {
-                document.getElementById('f-val').innerText = f + "Hz";
+        // ─── Canvas Visualizer ────────────────────────────────────────────────
+        function drawLoop() {
+            animId = requestAnimationFrame(drawLoop);
+            const w = canvas.width, h = canvas.height;
+            ctx.fillStyle = 'rgba(0,0,0,0.35)';
+            ctx.fillRect(0,0,w,h);
+
+            // Linha central
+            ctx.beginPath(); ctx.setLineDash([4,8]); ctx.lineWidth=1;
+            ctx.strokeStyle='rgba(255,255,255,0.07)';
+            ctx.moveTo(0,h/2); ctx.lineTo(w,h/2); ctx.stroke(); ctx.setLineDash([]);
+
+            if (!analyserNode || !activeSignal) return;
+
+            const buf = new Float32Array(analyserNode.frequencyBinCount);
+            analyserNode.getFloatTimeDomainData(buf);
+
+            ctx.beginPath(); ctx.lineWidth=2;
+            const grad = ctx.createLinearGradient(0,0,0,h);
+            grad.addColorStop(0,'#39ff14bb'); grad.addColorStop(0.5,'#39ff14ff'); grad.addColorStop(1,'#39ff14bb');
+            ctx.strokeStyle = grad;
+            ctx.shadowBlur=8; ctx.shadowColor='#39ff14';
+
+            const sw = w/buf.length;
+            for (let i=0;i<buf.length;i++) {
+                const y=(buf[i]*0.8+0.5)*h;
+                i===0 ? ctx.moveTo(0,y) : ctx.lineTo(i*sw,y);
             }
-            
-            if (oscNode && activeSignal === 'sine_manual') {
-                oscNode.frequency.setValueAtTime(f, audioCtx.currentTime);
-            }
+            ctx.lineTo(w,h/2); ctx.stroke(); ctx.shadowBlur=0;
         }
+
+        // ─── Init slider ──────────────────────────────────────────────────────
+        document.getElementById('f-slider').value = hzToSlider(440);
+        updateFreq();
     </script>
 </body>
 </html>
